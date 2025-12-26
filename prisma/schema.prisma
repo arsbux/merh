@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id              String   @id @default(uuid())
+  email           String   @unique
+  stripeAccountId String?  @unique
+  createdAt       DateTime @default(now())
+  store           Store?
+}
+
+model Store {
+  id           String   @id @default(uuid())
+  slug         String   @unique
+  name         String?
+  bio          String?
+  avatarUrl    String?
+  bannerUrl    String?
+  
+  themeColor   String   @default("#000000")
+  headerLayout String   @default("MODERN_CARD")
+  fontFamily   String   @default("Inter")
+  layoutType   String   @default("stack")
+  
+  socialLinks  Json     @default("{}")
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String   @unique
+  
+  products     Product[]
+  links        Link[]
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  price       Decimal  @db.Decimal(10, 2)
+  type        String   @default("PHYSICAL")
+  imageUrls   String[]
+  buttonText  String   @default("Get Started")
+  order       Int      @default(0)
+  
+  store       Store    @relation(fields: [storeId], references: [id])
+  storeId     String
+}
+
+model Link {
+  id          String   @id @default(uuid())
+  title       String?
+  url         String
+  type        String   @default("URL")
+  thumbnail   String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  
+  store       Store    @relation(fields: [storeId], references: [id])
+  storeId     String
+}

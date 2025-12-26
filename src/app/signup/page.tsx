@@ -1,0 +1,184 @@
+"use client";
+
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Store, Loader2, User, Mail, Lock, AtSign } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
+import { createStore } from "@/app/actions";
+
+function SignupForm() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const [loading, setLoading] = useState(false);
+    const [storeName, setStoreName] = useState("");
+    const [fullName, setFullName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
+    useEffect(() => {
+        const store = searchParams.get("store");
+        if (store) setStoreName(store);
+    }, [searchParams]);
+
+    const handleSignup = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            const supabase = createClient();
+
+            // 1. Sign up the user
+            const { data: authData, error: authError } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        full_name: fullName,
+                        store_name: storeName,
+                    },
+                    emailRedirectTo: `${window.location.origin}/auth/callback`,
+                }
+            });
+
+            if (authError) throw authError;
+
+            if (authData.user) {
+                // 2. Create the store record in database
+                const storeRes = await createStore(authData.user.id, email, storeName, fullName);
+
+                if (!storeRes.success) {
+                    toast.error("Account created but store generation failed: " + storeRes.error);
+                } else {
+                    toast.success("Welcome aboard! Please check your email to verify.");
+                }
+
+                router.push("/login?message=check-email");
+            }
+        } catch (error: any) {
+            toast.error(error.message || "Something went wrong");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-[#020617] text-white selection:bg-sky-500 relative overflow-hidden">
+            {/* Background Orbs */}
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-sky-500/10 rounded-full blur-[120px] pointer-events-none z-0 animate-pulse-subtle"></div>
+            <div className="absolute bottom-[10%] right-[-5%] w-[30%] h-[30%] bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none z-0 animate-pulse-subtle" style={{ animationDelay: '2s' }}></div>
+
+            <div className="w-full max-w-[400px] relative z-10 flex flex-col items-center mx-auto">
+                {/* Progress Bar (Decorative) */}
+                <div className="w-24 sm:w-32 h-1 bg-white/5 rounded-full mb-8 sm:mb-12 overflow-hidden">
+                    <div className="w-1/2 h-full bg-sky-500 rounded-full"></div>
+                </div>
+
+                {/* Header Section */}
+                <div className="text-center mb-8 sm:mb-10 space-y-2 px-4">
+                    <h1 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
+                        Hey <span className="text-sky-400">@{storeName || 'there'}</span> 👋
+                    </h1>
+                    <p className="text-gray-400 text-base sm:text-lg font-medium italic">Let's monetize your following!</p>
+                </div>
+
+                <form onSubmit={handleSignup} className="w-full space-y-3 sm:space-y-4 px-4 sm:px-0">
+                    {/* Handle Field */}
+                    <div className="relative group">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
+                            <AtSign className="w-4 h-4 sm:w-5 h-5" />
+                        </div>
+                        <span className="absolute left-10 sm:left-11 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-sm sm:text-base">merh.store/</span>
+                        <Input
+                            placeholder="username"
+                            value={storeName}
+                            onChange={(e) => setStoreName(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
+                            required
+                            className="h-12 sm:h-14 pl-[110px] sm:pl-36 rounded bg-white/5 border-white/10 focus:border-sky-500 focus:ring-sky-500 transition-all text-base sm:text-lg font-bold text-white placeholder:text-gray-700"
+                        />
+                    </div>
+
+                    {/* Full Name Field */}
+                    <div className="relative group">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
+                            <User className="w-4 h-4 sm:w-5 h-5" />
+                        </div>
+                        <Input
+                            placeholder="Full Name"
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                            required
+                            className="h-12 sm:h-14 pl-11 sm:pl-12 rounded bg-white/5 border-white/10 focus:border-sky-500 focus:ring-sky-500 transition-all text-base sm:text-lg font-medium text-white placeholder:text-gray-700"
+                        />
+                    </div>
+
+                    {/* Email Field */}
+                    <div className="relative group">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
+                            <Mail className="w-4 h-4 sm:w-5 h-5" />
+                        </div>
+                        <Input
+                            type="email"
+                            placeholder="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            className="h-12 sm:h-14 pl-11 sm:pl-12 rounded bg-white/5 border-white/10 focus:border-sky-500 focus:ring-sky-500 transition-all text-base sm:text-lg font-medium text-white placeholder:text-gray-700"
+                        />
+                    </div>
+
+                    {/* Password Field */}
+                    <div className="relative group">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
+                            <Lock className="w-4 h-4 sm:w-5 h-5" />
+                        </div>
+                        <Input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            className="h-12 sm:h-14 pl-11 sm:pl-12 rounded bg-white/5 border-white/10 focus:border-sky-500 focus:ring-sky-500 transition-all text-base sm:text-lg font-medium text-white placeholder:text-gray-700"
+                        />
+                    </div>
+
+                    <Button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full h-12 sm:h-14 bg-sky-500 text-white hover:bg-sky-400 rounded font-black text-lg sm:text-xl shadow-lg shadow-sky-500/20 transition-all active:scale-[0.98] mt-4 sm:mt-6"
+                    >
+                        {loading ? <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin" /> : "Next"}
+                    </Button>
+                </form>
+
+                {/* Footer Section */}
+                <div className="mt-8 sm:mt-10 text-center space-y-4 px-4">
+                    <p className="text-[10px] sm:text-xs text-gray-500 font-medium max-w-[280px] mx-auto">
+                        By continuing, you agree to our <br />
+                        <span className="text-sky-400 hover:underline cursor-pointer">Terms of Service</span> and <span className="text-sky-400 hover:underline cursor-pointer">Privacy Policy</span>.
+                    </p>
+
+                    <p className="text-sm sm:text-base text-gray-400 font-medium font-bold">
+                        Have an account?{" "}
+                        <Link href="/login" className="font-black text-sky-400 hover:text-sky-300 transition-colors">
+                            Login
+                        </Link>
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default function SignupPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-[#020617] flex items-center justify-center"><Loader2 className="w-10 h-10 text-sky-500 animate-spin" /></div>}>
+            <SignupForm />
+        </Suspense>
+    );
+}
