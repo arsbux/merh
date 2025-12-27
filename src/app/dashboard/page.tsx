@@ -38,7 +38,8 @@ import {
     Copy,
     Clock,
     Sparkles,
-    Wrench
+    Wrench,
+    ShoppingBag
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
