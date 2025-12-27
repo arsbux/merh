@@ -19,10 +19,12 @@ export const viewport: Viewport = {
 };
 
 import { Toaster } from "@/components/ui/sonner";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
 export const metadata: Metadata = {
   title: "merh.store - Build your micro-store in seconds",
   description: "The simplest way to sell physical and digital products globally.",
+  manifest: "/manifest.json",
   icons: {
     icon: "/favicon.png",
     apple: "/favicon.png",
@@ -40,6 +42,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <PWAInstallPrompt />
         <Toaster position="top-center" />
       </body>
     </html>
