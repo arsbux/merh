@@ -686,8 +686,8 @@ export default function DashboardPage() {
             {/* Top Header */}
             <header className="fixed top-0 left-0 right-0 h-16 flex items-center justify-between px-6 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200">
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center shadow-sm">
-                        <Store className="text-white w-4 h-4" />
+                    <div className="w-10 h-10 flex items-center justify-center">
+                        <img src="/LOGO-MERH.svg" alt="Merh Logo" className="w-full h-full" />
                     </div>
                     <div className="flex flex-col">
                         <span className="font-bold text-sm tracking-tight capitalize leading-none mb-0.5">{store?.slug || "No Handle"}</span>

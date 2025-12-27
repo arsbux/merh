@@ -27,8 +27,8 @@ export default function LandingPage() {
       {/* Navigation */}
       <nav className="flex items-center justify-between px-6 py-5 max-w-7xl mx-auto w-full sticky top-0 bg-[#020617]/40 backdrop-blur-2xl z-50 border-b border-white/[0.03]">
         <div className="flex items-center gap-2.5 group cursor-pointer">
-          <div className="w-9 h-9 bg-white text-black rounded-lg flex items-center justify-center shadow-lg transition-transform group-hover:scale-105 group-hover:rotate-3 duration-300">
-            <Store className="w-5 h-5" strokeWidth={2.5} />
+          <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-105 group-hover:rotate-3 duration-300">
+            <img src="/LOGO-MERH.svg" alt="Merh Logo" className="w-full h-full" />
           </div>
           <span className="text-xl font-black tracking-tighter">merh.store</span>
         </div>
@@ -212,8 +212,8 @@ export default function LandingPage() {
       <footer className="px-6 py-24 border-t border-white/[0.03] text-center relative z-10">
         <div className="flex flex-col items-center gap-10">
           <div className="flex items-center justify-center gap-2.5">
-            <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center border border-white/10">
-              <Store className="text-white w-4 h-4" strokeWidth={2.5} />
+            <div className="w-8 h-8 flex items-center justify-center">
+              <img src="/LOGO-MERH.svg" alt="Merh Logo" className="w-full h-full" />
             </div>
             <span className="text-lg font-black tracking-tight text-white/50">merh.store</span>
           </div>

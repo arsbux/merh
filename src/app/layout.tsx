@@ -26,8 +26,8 @@ export const metadata: Metadata = {
   description: "The simplest way to sell physical and digital products globally.",
   manifest: "/manifest.json",
   icons: {
-    icon: "/favicon.png",
-    apple: "/favicon.png",
+    icon: "/LOGO-MERH.svg",
+    apple: "/LOGO-MERH.svg",
   },
 };
 

@@ -86,8 +86,8 @@ function SignupForm() {
             <div className="w-full max-w-[440px] relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
                 {/* Header Section */}
                 <div className="text-center mb-12 space-y-4">
-                    <div className="w-14 h-14 bg-white text-black rounded-2xl flex items-center justify-center shadow-2xl mx-auto mb-8 border border-white/20">
-                        <Store className="w-7 h-7" strokeWidth={2.5} />
+                    <div className="w-20 h-20 flex items-center justify-center mx-auto mb-8">
+                        <img src="/LOGO-MERH.svg" alt="Merh Logo" className="w-full h-full" />
                     </div>
                     <h1 className="text-3xl sm:text-4xl font-black tracking-tighter leading-tight">
                         Reserve <span className="text-sky-400">@{storeName || 'yourname'}</span>
