@@ -2031,7 +2031,7 @@ export default function DashboardPage() {
                                                         <span className="text-sm font-bold text-slate-700">Upload Product File</span>
                                                         <span className="text-[11px] text-slate-400 font-medium">PDF, ZIP, etc.</span>
                                                     </div>
-                                                    <input type="file" className="hidden" onChange={handleProductFileUpload} />
+                                                    <input type="file" className="hidden" accept=".pdf,.zip,.rar,.txt,.doc,.docx,.xls,.xlsx,.ppt,.pptx" onChange={handleProductFileUpload} />
                                                 </label>
                                             )}
                                         </div>
