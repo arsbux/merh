@@ -36,7 +36,9 @@ import {
     ToggleRight,
     PenTool,
     Copy,
-    Clock
+    Clock,
+    Sparkles,
+    Wrench
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
@@ -82,7 +84,7 @@ export default function DashboardPage() {
     const [links, setLinks] = useState<any[]>([]);
 
     // Products state
-    const [activeTab, setActiveTab] = useState<'store' | 'products' | 'stats' | 'settings' | 'earnings'>('store');
+    const [activeTab, setActiveTab] = useState<'store' | 'products' | 'tools' | 'settings' | 'earnings'>('store');
     const [products, setProducts] = useState<any[]>([]);
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<any | null>(null);
@@ -1111,6 +1113,57 @@ export default function DashboardPage() {
                     </div>
                 )}
 
+                {/* TOOLS TAB */}
+                {activeTab === 'tools' && (
+                    <div className="animate-in fade-in slide-in-from-bottom-4 space-y-6">
+                        <div className="mb-8">
+                            <h2 className="text-2xl font-black tracking-tight text-slate-900 mb-1">Tools</h2>
+                            <p className="text-sm text-slate-500 font-medium opacity-80">Powerful add-ons to supercharge your sales.</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4">
+                            {/* Feature Card: Direct Checkout */}
+                            <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm group hover:shadow-md transition-all">
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-sky-50 flex items-center justify-center">
+                                        <ShoppingBag className="w-6 h-6 text-sky-600" />
+                                    </div>
+                                    <span className="bg-sky-50 text-sky-600 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">Active</span>
+                                </div>
+                                <h3 className="text-lg font-black text-slate-900 mb-1">One-Click Checkout</h3>
+                                <p className="text-sm text-slate-500 leading-relaxed mb-6 font-medium">Allow customers to buy directly without leaving your store. Supports Apple Pay & Google Pay.</p>
+                                <button className="w-full py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-400 cursor-not-allowed">Configured</button>
+                            </div>
+
+                            {/* Feature Card: Analytics */}
+                            <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm group hover:shadow-md transition-all">
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">
+                                        <ExternalLink className="w-6 h-6 text-indigo-600" />
+                                    </div>
+                                    <span className="bg-slate-100 text-slate-400 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">Coming Soon</span>
+                                </div>
+                                <h3 className="text-lg font-black text-slate-900 mb-1">Analytics Pixel</h3>
+                                <p className="text-sm text-slate-500 leading-relaxed mb-6 font-medium">Track your conversion rates and see where your customers are coming from in real-time.</p>
+                                <button className="w-full py-3 rounded-xl bg-slate-50 text-slate-400 text-sm font-bold opacity-60">Notify Me</button>
+                            </div>
+
+                            {/* Feature Card: Email Capture */}
+                            <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm group hover:shadow-md transition-all">
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center">
+                                        <User className="w-6 h-6 text-amber-600" />
+                                    </div>
+                                    <span className="bg-slate-100 text-slate-400 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">Coming Soon</span>
+                                </div>
+                                <h3 className="text-lg font-black text-slate-900 mb-1">Fan List Builder</h3>
+                                <p className="text-sm text-slate-500 leading-relaxed mb-6 font-medium">Capture emails and build your audience directly from your storefront.</p>
+                                <button className="w-full py-3 rounded-xl bg-slate-50 text-slate-400 text-sm font-bold opacity-60">Notify Me</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* EARNINGS TAB */}
                 {activeTab === 'earnings' && (
                     <div className="animate-in fade-in slide-in-from-bottom-4 space-y-6">
@@ -1120,19 +1173,19 @@ export default function DashboardPage() {
                         </div>
 
                         {/* Balance Card */}
-                        <div className="bg-slate-900 rounded-3xl p-6 text-white shadow-xl shadow-slate-900/20 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-32 bg-sky-500/20 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
+                        <div className="bg-[#020617] rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden border border-white/5">
+                            <div className="absolute top-0 right-0 p-32 bg-sky-500/10 rounded-full blur-[80px] -mr-16 -mt-16 pointer-events-none" />
                             <div className="relative z-10">
-                                <p className="text-sky-200 font-bold text-[10px] uppercase tracking-widest mb-2">Total Revenue</p>
-                                <h3 className="text-4xl font-black tracking-tighter mb-4">$0.00</h3>
-                                <div className="flex gap-3">
-                                    <div className="bg-white/10 backdrop-blur-md rounded-xl px-3 py-2.5 flex-1 border border-white/10">
-                                        <p className="text-white/60 text-[9px] font-bold uppercase tracking-wider mb-1">Last Payout</p>
-                                        <p className="font-bold text-base">$0.00</p>
+                                <p className="text-slate-500 font-black text-[10px] uppercase tracking-[0.2em] mb-3">Total Volume</p>
+                                <h3 className="text-5xl font-black tracking-tighter mb-8">$0.00</h3>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="bg-white/5 backdrop-blur-md rounded-2xl px-4 py-4 border border-white/5">
+                                        <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest mb-1.5">Last Payout</p>
+                                        <p className="font-bold text-lg text-white/90">$0.00</p>
                                     </div>
-                                    <div className="bg-white/10 backdrop-blur-md rounded-xl px-3 py-2.5 flex-1 border border-white/10">
-                                        <p className="text-white/60 text-[9px] font-bold uppercase tracking-wider mb-1">Pending</p>
-                                        <p className="font-bold text-base">$0.00</p>
+                                    <div className="bg-white/5 backdrop-blur-md rounded-2xl px-4 py-4 border border-white/5">
+                                        <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest mb-1.5">Pending</p>
+                                        <p className="font-bold text-lg text-white/90">$0.00</p>
                                     </div>
                                 </div>
                             </div>
@@ -1145,8 +1198,8 @@ export default function DashboardPage() {
                                     <Banknote className="w-5 h-5 text-emerald-600" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-base text-slate-900">Payout Details</h3>
-                                    <p className="text-xs text-slate-400 font-medium">Where should we send your money?</p>
+                                    <h3 className="font-black text-lg text-slate-900 tracking-tight">Payout Details</h3>
+                                    <p className="text-sm text-slate-400 font-medium">Configure where you receive your earnings.</p>
                                 </div>
                             </div>
 
@@ -1750,49 +1803,49 @@ export default function DashboardPage() {
             }
 
             {/* Bottom Navigation Bar */}
-            <nav className="fixed bottom-0 left-0 right-0 h-20 bg-white border-t border-slate-200 z-50 flex items-center justify-around px-2 safe-area-bottom">
+            <nav className="fixed bottom-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-xl border-t border-slate-100 z-50 flex items-center justify-around px-2 safe-area-bottom">
                 <button
                     onClick={() => setActiveTab('products')}
-                    className={`flex flex-col items-center gap-1 w-[60px] py-2 rounded-lg transition-all ${activeTab === 'products' ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+                    className={`flex flex-col items-center gap-1.5 w-[64px] py-1 rounded-xl transition-all ${activeTab === 'products' ? 'text-black' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                     <Package className="w-5 h-5" strokeWidth={activeTab === 'products' ? 2.5 : 2} />
-                    <span className="text-[9px] font-bold uppercase tracking-wide">Products</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.1em]">Products</span>
                 </button>
 
                 <button
-                    onClick={() => toast.info("Stats coming soon!")}
-                    className="flex flex-col items-center gap-1 w-[60px] py-2 rounded-lg text-slate-300 hover:text-slate-400 transition-colors"
+                    onClick={() => setActiveTab('tools')}
+                    className={`flex flex-col items-center gap-1.5 w-[64px] py-1 rounded-xl transition-all ${activeTab === 'tools' ? 'text-black' : 'text-slate-400 hover:text-slate-600'}`}
                 >
-                    <BarChart3 className="w-5 h-5" />
-                    <span className="text-[9px] font-bold uppercase tracking-wide">Stats</span>
+                    <Sparkles className="w-5 h-5" strokeWidth={activeTab === 'tools' ? 2.5 : 2} />
+                    <span className="text-[10px] font-black uppercase tracking-[0.1em]">Tools</span>
                 </button>
 
                 {/* Center Store Button */}
                 <button
                     onClick={() => setActiveTab('store')}
-                    className={`flex flex-col items-center justify-center gap-1 w-[72px] h-[72px] -mt-5 rounded-2xl border-4 transition-all shadow-lg ${activeTab === 'store'
-                        ? 'bg-white border-sky-100 text-slate-900 shadow-sky-100/50'
-                        : 'bg-white border-slate-50 text-slate-400 hover:text-slate-600 hover:border-slate-100'
+                    className={`flex flex-col items-center justify-center gap-1.5 w-[72px] h-[72px] -mt-6 rounded-3xl transition-all ${activeTab === 'store'
+                        ? 'bg-black text-white shadow-xl shadow-black/20 scale-105'
+                        : 'bg-white text-slate-400 hover:text-slate-600 border border-slate-100'
                         }`}
                 >
                     <Home className="w-6 h-6" strokeWidth={activeTab === 'store' ? 2.5 : 2} />
-                    <span className="text-[9px] font-bold uppercase tracking-wide">Store</span>
+                    <span className="text-[9px] font-black uppercase tracking-widest">Store</span>
                 </button>
 
                 <button
                     onClick={() => setActiveTab('settings')}
-                    className={`flex flex-col items-center gap-1 w-[60px] py-2 rounded-lg transition-all ${activeTab === 'settings' ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+                    className={`flex flex-col items-center gap-1.5 w-[64px] py-1 rounded-xl transition-all ${activeTab === 'settings' ? 'text-black' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                     <Settings className="w-5 h-5" strokeWidth={activeTab === 'settings' ? 2.5 : 2} />
-                    <span className="text-[9px] font-bold uppercase tracking-wide">Settings</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.1em]">Settings</span>
                 </button>
 
                 <button
                     onClick={() => setActiveTab('earnings')}
-                    className={`flex flex-col items-center gap-1 w-[60px] py-2 rounded-lg transition-all ${activeTab === 'earnings' ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+                    className={`flex flex-col items-center gap-1.5 w-[64px] py-1 rounded-xl transition-all ${activeTab === 'earnings' ? 'text-black' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                     <Banknote className="w-5 h-5" strokeWidth={activeTab === 'earnings' ? 2.5 : 2} />
-                    <span className="text-[9px] font-bold uppercase tracking-wide">Earnings</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.1em]">Earnings</span>
                 </button>
             </nav>
 
