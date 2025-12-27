@@ -262,6 +262,50 @@ export default async function StorefrontPage({
                 })}
             </div>
 
+            {/* Products Section */}
+            {store.products && store.products.length > 0 && (
+                <div className="w-full max-w-[400px] space-y-4 mt-8">
+                    <h2 className="text-lg font-black tracking-tight opacity-80 px-1">Products</h2>
+                    <div className="grid grid-cols-1 gap-4">
+                        {store.products.map((product: any) => (
+                            <Link
+                                key={product.id}
+                                href={`/${slug}/${product.slug || product.id}`}
+                                className="block rounded-xl overflow-hidden shadow-xl backdrop-blur-md border border-white/10 group transition-all hover:scale-[1.01]"
+                                style={{ backgroundColor: cardBg }}
+                            >
+                                {product.imageUrls?.[0] && (
+                                    <div className="aspect-video overflow-hidden">
+                                        <img
+                                            src={product.imageUrls[0]}
+                                            alt={product.name}
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                        />
+                                    </div>
+                                )}
+                                <div className="p-5">
+                                    <div className="flex items-start justify-between gap-2 mb-2">
+                                        <h3 className="font-bold text-lg">{product.name}</h3>
+                                        <span className="text-sky-400 font-black text-lg whitespace-nowrap">
+                                            ${parseFloat(product.price || 0).toFixed(2)}
+                                        </span>
+                                    </div>
+                                    {product.description && (
+                                        <p className="text-sm opacity-60 mb-4 line-clamp-2">{product.description}</p>
+                                    )}
+                                    <button
+                                        className="w-full py-4 rounded-lg font-bold text-center transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                        style={{ backgroundColor: buttonBg, color: buttonText }}
+                                    >
+                                        {product.buttonText || "Buy Now"}
+                                    </button>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Powered By */}
             <footer className="w-full pt-12 pb-4 text-center mt-auto flex flex-col items-center gap-4">
                 <p className="text-[10px] font-black tracking-[0.3em] opacity-20 uppercase flex items-center gap-2">
