@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Store, Loader2, Mail, Lock } from "lucide-react";
+import { Store, Loader2, Mail, Lock, ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 
@@ -42,23 +42,31 @@ function LoginForm() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-[#020617] text-white selection:bg-sky-500 relative overflow-hidden">
-            {/* Background Orbs */}
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-sky-500/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
-            <div className="absolute bottom-[10%] right-[-5%] w-[30%] h-[30%] bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
+        <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#020617] text-[#f8fafc] selection:bg-sky-500/30 relative overflow-hidden font-sans">
+            {/* Premium Background */}
+            <div className="fixed inset-0 pointer-events-none z-0">
+                <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:40px_40px] opacity-20"></div>
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-sky-500/10 rounded-full blur-[120px] animate-pulse-subtle"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-500/10 rounded-full blur-[120px] animate-pulse-subtle" style={{ animationDelay: '2s' }}></div>
+            </div>
 
-            <div className="w-full max-w-[400px] relative z-10 flex flex-col items-center mx-auto text-center">
-                {/* Logo Section */}
-                <Link href="/" className="flex items-center gap-3 mb-10 group transition-all hover:scale-105 active:scale-95">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-sky-400 to-indigo-600 rounded flex items-center justify-center shadow-lg shadow-sky-500/20 group-hover:shadow-sky-500/40 transition-shadow">
-                        <Store className="text-white w-6 h-6 sm:w-7 sm:h-7" />
-                    </div>
-                </Link>
+            {/* Back to Home */}
+            <Link
+                href="/"
+                className="absolute top-8 left-8 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-white transition-colors z-20 group"
+            >
+                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                Back to home
+            </Link>
 
+            <div className="w-full max-w-[440px] relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
                 {/* Header Section */}
-                <div className="mb-10 space-y-2 px-4">
-                    <h1 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight">Welcome back</h1>
-                    <p className="text-gray-400 text-base sm:text-lg font-medium italic">
+                <div className="text-center mb-12 space-y-4">
+                    <div className="w-14 h-14 bg-white text-black rounded-2xl flex items-center justify-center shadow-2xl mx-auto mb-8 border border-white/20">
+                        <Store className="w-7 h-7" strokeWidth={2.5} />
+                    </div>
+                    <h1 className="text-3xl sm:text-4xl font-black tracking-tighter leading-tight">Welcome back</h1>
+                    <p className="text-gray-500 text-base font-medium">
                         {message === "check-email"
                             ? "Please check your email to verify your account."
                             : "Your micro-store is waiting for you."
@@ -66,57 +74,65 @@ function LoginForm() {
                     </p>
                 </div>
 
-                <form onSubmit={handleLogin} className="w-full space-y-4 px-4 sm:px-0 text-left">
-                    {/* Email Field */}
-                    <div className="relative group">
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
-                            <Mail className="w-4 h-4 sm:w-5 h-5" />
+                <div className="bg-white/[0.03] border border-white/[0.08] backdrop-blur-3xl rounded-[32px] p-8 sm:p-10 shadow-2xl">
+                    <form onSubmit={handleLogin} className="space-y-4 text-left">
+                        {/* Email Field */}
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 ml-1">Email Address</label>
+                            <div className="relative group">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600">
+                                    <Mail className="w-4 h-4" />
+                                </div>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    placeholder="keith@merh.store"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                    className="h-14 pl-12 rounded-xl bg-white/[0.03] border-white/[0.08] focus:border-sky-500/50 focus:ring-sky-500/10 transition-all text-base font-medium text-white placeholder:text-gray-800"
+                                />
+                            </div>
                         </div>
-                        <Input
-                            id="email"
-                            type="email"
-                            placeholder="Email address"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            className="h-12 sm:h-14 pl-11 sm:pl-12 rounded bg-white/5 border-white/10 focus:border-sky-500 focus:ring-sky-500 transition-all text-base sm:text-lg font-medium text-white placeholder:text-gray-700"
-                        />
-                    </div>
 
-                    {/* Password Field */}
-                    <div className="relative group">
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
-                            <Lock className="w-4 h-4 sm:w-5 h-5" />
+                        {/* Password Field */}
+                        <div className="space-y-1.5">
+                            <div className="flex justify-between items-center ml-1">
+                                <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500">Secure Password</label>
+                                <Link href="#" className="text-[10px] font-bold text-sky-500 hover:text-sky-400 tracking-tighter transition-colors">FORGOT?</Link>
+                            </div>
+                            <div className="relative group">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600">
+                                    <Lock className="w-4 h-4" />
+                                </div>
+                                <Input
+                                    id="password"
+                                    type="password"
+                                    placeholder="••••••••"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    className="h-14 pl-12 rounded-xl bg-white/[0.03] border-white/[0.08] focus:border-sky-500/50 focus:ring-sky-500/10 transition-all text-base font-medium text-white placeholder:text-gray-800"
+                                />
+                            </div>
                         </div>
-                        <Input
-                            id="password"
-                            type="password"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            className="h-12 sm:h-14 pl-11 sm:pl-12 rounded bg-white/5 border-white/10 focus:border-sky-500 focus:ring-sky-500 transition-all text-base sm:text-lg font-medium text-white placeholder:text-gray-700"
-                        />
-                        <Link href="#" className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] sm:text-xs text-gray-500 font-bold hover:text-white transition-colors">
-                            Forgot?
-                        </Link>
-                    </div>
 
-                    <Button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full h-12 sm:h-14 bg-sky-500 text-white hover:bg-sky-400 rounded font-black text-lg sm:text-xl shadow-lg shadow-sky-500/20 transition-all active:scale-[0.98] mt-4"
-                    >
-                        {loading ? <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin" /> : "Sign In"}
-                    </Button>
-                </form>
+                        <Button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full h-14 bg-white text-black hover:bg-gray-100 rounded-xl font-black text-lg shadow-2xl transition-all active:scale-[0.98] mt-6 border border-white/20"
+                        >
+                            {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : "Sign In"}
+                        </Button>
+                    </form>
+                </div>
 
                 {/* Footer Section */}
-                <div className="mt-10 space-y-4 px-4">
-                    <p className="text-sm sm:text-base text-gray-400 font-medium">
-                        Don't have a store?{" "}
+                <div className="mt-12 text-center">
+                    <p className="text-sm text-gray-500 font-bold">
+                        Don't have a store yet?{" "}
                         <Link href="/signup" className="font-black text-sky-400 hover:text-sky-300 transition-colors">
-                            Launch one now
+                            Launch now
                         </Link>
                     </p>
                 </div>
@@ -127,7 +143,7 @@ function LoginForm() {
 
 export default function LoginPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-50/50"><Loader2 className="animate-spin" /></div>}>
+        <Suspense fallback={<div className="min-h-screen bg-[#020617] flex items-center justify-center font-sans"><Loader2 className="w-10 h-10 text-sky-500 animate-spin" /></div>}>
             <LoginForm />
         </Suspense>
     );
