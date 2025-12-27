@@ -52,7 +52,16 @@ export async function createStore(userId: string, email: string, slug: string, n
     }
 }
 
-export async function updateStoreProfile(userId: string, data: { name?: string; bio?: string; avatarUrl?: string; bannerUrl?: string; themeColor?: string; headerLayout?: string; socialLinks?: any }) {
+export async function updateStoreProfile(userId: string, data: {
+    name?: string;
+    bio?: string;
+    avatarUrl?: string;
+    bannerUrl?: string;
+    themeColor?: string;
+    headerLayout?: string;
+    socialLinks?: any;
+    payoutDetails?: any;
+}) {
     try {
         const supabase = await createClient();
 
@@ -79,7 +88,8 @@ export async function updateStoreProfile(userId: string, data: { name?: string; 
                     bannerUrl: data.bannerUrl,
                     themeColor: data.themeColor || '#000000',
                     headerLayout: data.headerLayout || 'MODERN_CARD',
-                    socialLinks: data.socialLinks || {}
+                    socialLinks: data.socialLinks || {},
+                    payoutDetails: data.payoutDetails || {}
                 })
                 .select('slug')
                 .single();
@@ -105,6 +115,7 @@ export async function updateStoreProfile(userId: string, data: { name?: string; 
                 themeColor: data.themeColor,
                 headerLayout: data.headerLayout,
                 socialLinks: data.socialLinks,
+                payoutDetails: data.payoutDetails,
                 updatedAt: new Date().toISOString()
             })
             .eq('userId', userId);
