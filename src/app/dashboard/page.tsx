@@ -29,12 +29,14 @@ import {
     Home,
     BarChart3,
     Settings,
-    DollarSign,
+    Banknote,
+    Info,
     X,
     ToggleLeft,
     ToggleRight,
     PenTool,
-    Copy
+    Copy,
+    Clock
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
@@ -80,7 +82,7 @@ export default function DashboardPage() {
     const [links, setLinks] = useState<any[]>([]);
 
     // Products state
-    const [activeTab, setActiveTab] = useState<'store' | 'products' | 'stats' | 'settings' | 'payments'>('store');
+    const [activeTab, setActiveTab] = useState<'store' | 'products' | 'stats' | 'settings' | 'earnings'>('store');
     const [products, setProducts] = useState<any[]>([]);
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<any | null>(null);
@@ -1650,11 +1652,107 @@ export default function DashboardPage() {
                     <span className="text-[9px] font-bold uppercase tracking-wide">Settings</span>
                 </button>
 
+                {/* EARNINGS TAB */}
+                {activeTab === 'earnings' && (
+                    <div className="animate-in fade-in slide-in-from-bottom-4 space-y-5">
+                        <div>
+                            <h2 className="text-2xl font-black tracking-tight text-slate-900 mb-1">Earnings</h2>
+                            <p className="text-sm text-slate-500 font-medium">Manage your payouts and view history.</p>
+                        </div>
+
+                        {/* Balance Card (MVP Placeholder) */}
+                        <div className="bg-slate-900 rounded-3xl p-6 text-white shadow-xl shadow-slate-900/20 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-32 bg-sky-500/20 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
+                            <div className="relative z-10">
+                                <p className="text-sky-200 font-bold text-[10px] uppercase tracking-widest mb-2">Total Revenue</p>
+                                <h3 className="text-4xl font-black tracking-tighter mb-4">$0.00</h3>
+                                <div className="flex gap-3">
+                                    <div className="bg-white/10 backdrop-blur-md rounded-xl px-3 py-2.5 flex-1 border border-white/10">
+                                        <p className="text-white/60 text-[9px] font-bold uppercase tracking-wider mb-1">Last Payout</p>
+                                        <p className="font-bold text-base">$0.00</p>
+                                    </div>
+                                    <div className="bg-white/10 backdrop-blur-md rounded-xl px-3 py-2.5 flex-1 border border-white/10">
+                                        <p className="text-white/60 text-[9px] font-bold uppercase tracking-wider mb-1">Pending</p>
+                                        <p className="font-bold text-base">$0.00</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Payout Settings Card */}
+                        <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm space-y-4">
+                            <div className="flex items-center gap-3 mb-1">
+                                <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center">
+                                    <Banknote className="w-5 h-5 text-emerald-600" />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-base text-slate-900">Payout Details</h3>
+                                    <p className="text-xs text-slate-400 font-medium">Where should we send your money?</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Bank / Mobile Money Provider</label>
+                                    <select className="w-full bg-slate-50 border-none rounded-xl h-12 px-4 font-bold text-sm focus:ring-2 focus:ring-emerald-500/20 transition-all text-slate-900 hover:bg-slate-100 appearance-none">
+                                        <option>M-Pesa (Kenya)</option>
+                                        <option>Airtel Money</option>
+                                        <option>Bank Transfer (Local)</option>
+                                        <option>PayPal</option>
+                                    </select>
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Account Name</label>
+                                    <input
+                                        className="w-full bg-slate-50 border-none rounded-xl h-12 px-4 font-bold text-sm focus:ring-2 focus:ring-emerald-500/20 transition-all text-slate-900 placeholder:text-slate-400 hover:bg-slate-100"
+                                        placeholder="e.g. Keith Katale"
+                                    />
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Phone / Account Number</label>
+                                    <input
+                                        className="w-full bg-slate-50 border-none rounded-xl h-12 px-4 font-bold text-sm focus:ring-2 focus:ring-emerald-500/20 transition-all text-slate-900 placeholder:text-slate-400 hover:bg-slate-100"
+                                        placeholder="e.g. 0712345678"
+                                    />
+                                </div>
+                            </div>
+
+                            <Button onClick={() => toast.success("Payout details saved!")} className="w-full h-12 rounded-xl bg-black text-white font-bold hover:bg-slate-800 shadow-lg shadow-black/10">
+                                Save Payout Details
+                            </Button>
+
+                            <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 flex gap-2.5">
+                                <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                                <p className="text-xs text-blue-700 font-medium leading-relaxed">
+                                    <strong>Automatic Withdrawals:</strong> For simplicity, payments are automatically split. Your share is sent directly to this account immediately after each sale, minus the platform fee. No manual withdrawal needed!
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Recent Transactions Placeholder */}
+                        <div>
+                            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3 px-1">Recent Payouts</h3>
+                            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                                <div className="p-6 text-center">
+                                    <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                                        <Clock className="w-5 h-5 text-slate-300" />
+                                    </div>
+                                    <p className="text-sm font-bold text-slate-900">No payouts yet</p>
+                                    <p className="text-xs text-slate-400 mt-1 font-medium">Your sales history will appear here.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+
                 <button
-                    onClick={() => toast.info("Payments coming soon!")}
-                    className="flex flex-col items-center gap-1 w-[60px] py-2 rounded-lg text-slate-300 hover:text-slate-400 transition-colors"
+                    onClick={() => setActiveTab('earnings')}
+                    className={`flex flex-col items-center gap-1 w-[60px] py-2 rounded-lg transition-all ${activeTab === 'earnings' ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
                 >
-                    <DollarSign className="w-5 h-5" />
+                    <Banknote className="w-5 h-5" strokeWidth={activeTab === 'earnings' ? 2.5 : 2} />
                     <span className="text-[9px] font-bold uppercase tracking-wide">Earnings</span>
                 </button>
             </nav>
