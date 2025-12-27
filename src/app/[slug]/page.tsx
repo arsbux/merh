@@ -285,7 +285,7 @@ export default async function StorefrontPage({
                                 )}
                                 <div className="p-5">
                                     <div className="flex items-start justify-between gap-2 mb-2">
-                                        <h3 className="font-bold text-lg">{product.name}</h3>
+                                        <h3 className="font-bold text-lg line-clamp-2 leading-tight">{product.name}</h3>
                                         <span className="text-sky-400 font-black text-lg whitespace-nowrap">
                                             ${parseFloat(product.price || 0).toFixed(2)}
                                         </span>

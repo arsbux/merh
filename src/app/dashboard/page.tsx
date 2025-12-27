@@ -885,9 +885,9 @@ export default function DashboardPage() {
 
                                             {/* Product Info */}
                                             <div className="flex-1 min-w-0 py-1">
-                                                <div className="flex items-start justify-between gap-4 mb-1">
-                                                    <h3 className="font-black text-slate-900 truncate text-xl tracking-tight">{product.name}</h3>
-                                                    <div className="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+                                                <div className="flex items-start justify-between gap-4 mb-1.5">
+                                                    <h3 className="font-black text-slate-900 line-clamp-2 text-base leading-tight tracking-tight">{product.name}</h3>
+                                                    <div className="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 flex-shrink-0">
                                                         <span className="text-slate-900 font-black text-sm whitespace-nowrap">
                                                             ${parseFloat(product.price || 0).toFixed(2)}
                                                         </span>
@@ -1095,8 +1095,8 @@ export default function DashboardPage() {
                                                     {products.map((product: any) => (
                                                         <div key={product.id} className="rounded-xl overflow-hidden shadow-xl backdrop-blur-md border border-white/10 flex gap-4 p-4" style={{ backgroundColor: cardBg }}>
                                                             {product.imageUrls?.[0] && <img src={product.imageUrls[0]} className="w-16 h-16 rounded-lg object-cover" />}
-                                                            <div className="flex-1">
-                                                                <h3 className="font-bold text-sm">{product.name}</h3>
+                                                            <div className="flex-1 min-w-0">
+                                                                <h3 className="font-bold text-sm line-clamp-2 leading-tight">{product.name}</h3>
                                                                 <p className="text-xs opacity-60 mt-1">${parseFloat(product.price || 0).toFixed(2)}</p>
                                                             </div>
                                                         </div>
