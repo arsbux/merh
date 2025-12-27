@@ -39,7 +39,9 @@ import {
     Clock,
     Sparkles,
     Wrench,
-    ShoppingBag
+    ShoppingBag,
+    Download,
+    Smartphone
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
@@ -99,6 +101,8 @@ export default function DashboardPage() {
         accountNumber: ""
     });
     const [savingPayout, setSavingPayout] = useState(false);
+    const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+    const [isPWAInstalled, setIsPWAInstalled] = useState(false);
 
     const [pendingProduct, setPendingProduct] = useState({
         name: "",
@@ -271,6 +275,40 @@ export default function DashboardPage() {
         if (res.success) {
             setLinks(links.filter(l => l.id !== id));
             toast.success("Block removed");
+        }
+    };
+
+    useEffect(() => {
+        // Register service worker
+        if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+            navigator.serviceWorker.register("/sw.js").catch((err) => {
+                console.error("Service worker registration failed:", err);
+            });
+        }
+
+        const handler = (e: any) => {
+            e.preventDefault();
+            setDeferredPrompt(e);
+        };
+
+        window.addEventListener("beforeinstallprompt", handler);
+
+        if (window.matchMedia("(display-mode: standalone)").matches) {
+            setIsPWAInstalled(true);
+        }
+
+        return () => {
+            window.removeEventListener("beforeinstallprompt", handler);
+        };
+    }, []);
+
+    const handlePWAInstall = async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === "accepted") {
+            setDeferredPrompt(null);
+            setIsPWAInstalled(true);
         }
     };
 
@@ -831,6 +869,28 @@ export default function DashboardPage() {
                                 </div>
                             )}
                         </div>
+
+                        {/* Mobile App Card */}
+                        {!isPWAInstalled && deferredPrompt && (
+                            <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-sky-50 flex items-center justify-center">
+                                        <Smartphone className="w-6 h-6 text-sky-600" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="text-base font-black text-slate-900 tracking-tight">Merh for Mobile</h3>
+                                        <p className="text-xs text-slate-400 font-medium leading-tight">Install for faster access and offline support.</p>
+                                    </div>
+                                </div>
+                                <Button
+                                    onClick={handlePWAInstall}
+                                    className="w-full h-12 rounded-xl bg-sky-500 text-white font-bold text-sm shadow-lg shadow-sky-500/20 hover:bg-sky-400 active:scale-95 transition-all flex items-center justify-center gap-2"
+                                >
+                                    <Download className="w-4 h-4" />
+                                    Install App
+                                </Button>
+                            </div>
+                        )}
 
                         {/* Sign Out Button */}
                         <Button
