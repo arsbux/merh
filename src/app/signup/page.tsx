@@ -43,7 +43,7 @@ function SignupForm() {
                     emailRedirectTo: `${window.location.origin}/auth/callback`,
                 }
             });
-
+            
             if (authError) throw authError;
 
             if (authData.user) {

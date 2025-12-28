@@ -4,230 +4,338 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Store, Zap, Globe, ShieldCheck, ArrowRight, Star, Layers, Cpu, Smartphone } from "lucide-react";
+import {
+  ArrowRight,
+  Download,
+  Smartphone,
+  Globe,
+  Layers,
+  Plus,
+  CheckCircle2,
+  Phone,
+  CreditCard,
+  MessageSquare,
+  ChevronDown
+} from "lucide-react";
 
 export default function LandingPage() {
-  const [storeName, setStoreName] = useState("");
   const router = useRouter();
 
-  const handleCreateStore = () => {
-    if (!storeName) return;
-    router.push(`/signup?store=${encodeURIComponent(storeName)}`);
-  };
-
   return (
-    <div className="flex flex-col min-h-screen bg-[#020617] text-[#f8fafc] selection:bg-sky-500/30 selection:text-white overflow-x-hidden font-sans">
-      {/* Premium Architectural Grid Background */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black_70%,transparent_100%)] opacity-20"></div>
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-sky-500/10 rounded-full blur-[120px] animate-pulse-subtle"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-500/10 rounded-full blur-[120px] animate-pulse-subtle" style={{ animationDelay: '2s' }}></div>
-      </div>
-
+    <div className="flex flex-col min-h-screen bg-[#FDDF14] text-black selection:bg-black selection:text-[#FDDF14] overflow-x-hidden font-sans">
       {/* Navigation */}
-      <nav className="flex items-center justify-between px-6 py-5 max-w-7xl mx-auto w-full sticky top-0 bg-[#020617]/40 backdrop-blur-2xl z-50 border-b border-white/[0.03]">
-        <div className="flex items-center gap-2.5 group cursor-pointer">
-          <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-105 group-hover:rotate-3 duration-300">
+      <nav className="flex items-center justify-between px-6 md:px-12 py-4 w-full sticky top-0 z-50 transition-all bg-[#FDDF14]/80 backdrop-blur-md border-b-2 border-black/5">
+        <div className="flex items-center gap-2 group cursor-pointer" onClick={() => router.push('/')}>
+          <div className="w-6 h-6 flex items-center justify-center transition-transform group-hover:scale-110 duration-300">
             <img src="/LOGO-MERH.svg" alt="Merh Logo" className="w-full h-full" />
           </div>
-          <span className="text-xl font-black tracking-tighter">merh.store</span>
+          <span className="text-lg font-black tracking-tighter uppercase italic">MERH.store</span>
         </div>
-        <div className="flex items-center gap-8">
-          <Link href="/login" className="text-sm font-bold text-gray-500 hover:text-white transition-colors">
-            Login
+
+        <div className="flex items-center gap-6">
+          <Link href="#features" className="hidden md:block text-[11px] font-black hover:opacity-60 transition-opacity uppercase tracking-widest">Become a Seller</Link>
+          <Link href="/login" className="flex items-center justify-center bg-black text-white px-4 py-1.5 rounded-full text-xs font-bold hover:opacity-90 transition-all">
+            Log in
           </Link>
           <Button
-            variant="default"
             onClick={() => router.push('/signup')}
-            className="bg-white text-black hover:bg-gray-100 rounded-full px-6 py-2 text-sm font-bold shadow-xl transition-all hover:scale-[1.02] active:scale-95 border border-white/20"
+            className="hidden sm:flex items-center justify-center bg-transparent text-black border-2 border-black/10 hover:border-black/20 rounded-full px-4 py-1.5 h-auto text-xs font-bold transition-all shadow-none"
           >
-            Get Started
+            Sign up
           </Button>
         </div>
       </nav>
 
-      <main className="flex-1 relative z-10">
+      <main className="flex-1 relative">
         {/* Hero Section */}
-        <section className="px-6 pt-20 sm:pt-32 pb-24 text-center max-w-6xl mx-auto flex flex-col items-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] text-[10px] font-bold uppercase tracking-[0.2em] text-sky-400 mb-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-            <Zap className="w-3.5 h-3.5 fill-current" />
-            <span>The Creator Economy's New Workbench</span>
+        <section className="px-6 relative min-h-[70vh] flex items-center max-w-7xl mx-auto py-12 md:py-16">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-center w-full">
+
+            {/* Visual Side (Mockups) */}
+            <div className="lg:col-span-6 relative flex items-center justify-center order-2 lg:order-1 mt-4 lg:mt-0">
+              <div className="relative w-full max-w-[240px] h-[300px] flex items-center justify-center">
+                {/* Background Left */}
+                <div className="absolute left-[-5%] top-1/2 -translate-y-1/2 w-[90px] md:w-[110px] aspect-[9/18.5] rounded-[14px] shadow-lg overflow-hidden -rotate-[10deg] opacity-60 z-10 transition-transform">
+                  <img src="/demo-accounts/image copy 2.png" className="w-full h-full object-cover" />
+                </div>
+
+                {/* Background Right */}
+                <div className="absolute right-[-5%] top-1/2 -translate-y-1/2 w-[90px] md:w-[110px] aspect-[9/18.5] rounded-[14px] shadow-lg overflow-hidden rotate-[10deg] opacity-60 z-10 transition-transform">
+                  <img src="/demo-accounts/image copy.png" className="w-full h-full object-cover" />
+                </div>
+
+                {/* Front Center */}
+                <div className="relative w-[130px] md:w-[160px] aspect-[9/18.5] rounded-[18px] shadow-[0_15px_30px_-8px_rgba(0,0,0,0.3)] overflow-hidden z-20 border-2 border-black/5">
+                  <img src="/demo-accounts/image.png" alt="Demo Account" className="w-full h-full object-cover" />
+                </div>
+              </div>
+            </div>
+
+            {/* Content Side */}
+            <div className="lg:col-span-6 space-y-6 order-1 lg:order-2">
+              <div className="space-y-3">
+                <h1 className="text-3xl md:text-5xl lg:text-6xl font-[1000] tracking-tighter leading-[1] uppercase">
+                  Sell anything.<br />
+                  From anywhere.<br />
+                  With just your phone.
+                </h1>
+                <p className="text-sm md:text-base font-bold max-w-sm opacity-80 leading-snug">
+                  Build a store in 30 seconds, get paid globally, and withdraw locally — no desktop, no Stripe headaches, no tech skills required.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <Button
+                  onClick={() => router.push('/signup')}
+                  className="w-full sm:w-auto bg-black text-white hover:opacity-90 rounded-full px-6 h-12 text-sm font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-md shadow-black/5"
+                >
+                  Get started — it’s free
+                </Button>
+                <Link
+                  href="#features"
+                  className="text-[11px] font-black uppercase tracking-widest border-b-2 border-black/10 hover:border-black transition-all pb-0.5"
+                >
+                  See product demo
+                </Link>
+              </div>
+            </div>
           </div>
 
-          <h1 className="text-5xl sm:text-7xl md:text-[90px] font-black tracking-tighter mb-8 leading-[0.9] bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/40 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-100">
-            Build your store <br className="hidden sm:block" /> in <span className="text-sky-400 italic">real-time.</span>
-          </h1>
-
-          <p className="text-lg sm:text-xl text-gray-500 mb-14 max-w-2xl mx-auto leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200">
-            A minimalist, high-performance storefront for anything you sell. <br className="hidden sm:block" />
-            Digital items, services, or physical goods — all in one link.
-          </p>
-
-          <div className="w-full max-w-xl mx-auto p-1.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] backdrop-blur-3xl shadow-2xl animate-in fade-in slide-in-from-bottom-16 duration-1000 delay-300 flex flex-col sm:flex-row items-center gap-2">
-            <div className="relative flex-1 w-full flex items-center px-6 py-4">
-              <span className="text-gray-600 font-black text-lg">merh.store/</span>
-              <input
-                type="text"
-                placeholder="yourname"
-                value={storeName}
-                onChange={(e) => setStoreName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleCreateStore()}
-                className="flex-1 bg-transparent border-none focus:ring-0 transition-all outline-none text-lg font-black text-white placeholder:text-gray-800 ml-1"
-              />
-            </div>
-            <Button
-              size="lg"
-              onClick={handleCreateStore}
-              className="w-full sm:w-auto h-14 px-8 rounded-xl bg-sky-500 text-white text-base font-black hover:bg-sky-400 transition-all shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2.5 group"
-            >
-              Claim URL <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </div>
-
-          <div className="mt-10 flex items-center justify-center gap-8 text-gray-600 animate-in fade-in duration-1000 delay-500">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
-              <ShieldCheck className="w-4 h-4 text-emerald-500" /> Secure Payments
-            </div>
-            <div className="w-1 h-1 rounded-full bg-white/10"></div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
-              <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" /> 0% Platform Fee
-            </div>
-          </div>
-
-          {/* App Mockup Visual */}
-          <div className="mt-24 relative w-full max-w-5xl mx-auto animate-in fade-in zoom-in duration-1000 delay-700">
-            <div className="absolute inset-0 bg-sky-500/20 blur-[120px] rounded-full scale-75 -z-10 animate-pulse-subtle"></div>
-            <div className="relative rounded-3xl border border-white/10 p-4 bg-white/[0.02] backdrop-blur-3xl shadow-inner group overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-sky-400/50 to-transparent"></div>
-              <img
-                src="/mockup.png"
-                alt="Merh App Interface"
-                className="w-full h-auto rounded-2xl shadow-2xl transition-transform duration-700 group-hover:scale-[1.01]"
-              />
-            </div>
+          {/* Scroll Indicator */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden md:block">
+            <Link href="#pitch" className="flex items-center gap-2 px-3 py-1.5 rounded-full border-2 border-black/5 hover:border-black/10 hover:bg-black/5 transition-all text-[8px] font-black uppercase tracking-[0.2em]">
+              <ChevronDown className="w-3 h-3" />
+              Learn More
+            </Link>
           </div>
         </section>
 
-        {/* Bento Grid Features */}
-        <section className="px-6 py-32 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            {/* Big Bento Item */}
-            <div className="md:col-span-8 bg-white/[0.02] border border-white/[0.05] rounded-[32px] p-10 flex flex-col justify-between group hover:bg-white/[0.04] transition-all hover:border-white/[0.1] relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-32 bg-sky-500/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-sky-500/10 transition-colors"></div>
-              <div>
-                <div className="w-14 h-14 rounded-2xl bg-sky-500/10 flex items-center justify-center mb-8 border border-sky-500/20 group-hover:scale-110 transition-transform">
-                  <Globe className="w-7 h-7 text-sky-400" />
-                </div>
-                <h3 className="text-3xl font-black tracking-tight text-white mb-4 leading-tight">Sell to the World,<br />Get Paid Locally.</h3>
-                <p className="text-gray-500 text-lg font-medium max-w-md leading-relaxed">
-                  Accept global payments and withdraw directly to your Mobile Money or Local Bank. Tailored specifically for emerging markets.
-                </p>
-              </div>
-              <div className="mt-12 flex gap-4">
-                <div className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-widest">Global Reach</div>
-                <div className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-widest">Local Payouts</div>
-              </div>
-            </div>
-
-            {/* Small Bento Item */}
-            <div className="md:col-span-4 bg-[#0f172a]/50 border border-white/[0.05] rounded-[32px] p-10 flex flex-col justify-between group hover:bg-[#0f172a] transition-all hover:border-white/[0.1]">
-              <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center mb-8 border border-indigo-500/20 group-hover:scale-110 transition-transform">
-                <Smartphone className="w-7 h-7 text-indigo-400" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-black tracking-tight text-white mb-3 leading-tight">Phone Only Layout.</h3>
-                <p className="text-gray-500 text-sm font-medium leading-relaxed">
-                  No laptop required. Manage your entire storefront, inventory, and sales analytics directly from your pocket.
-                </p>
-              </div>
-            </div>
-
-            {/* Another Small Bento Item */}
-            <div className="md:col-span-4 bg-white/[0.02] border border-white/[0.05] rounded-[32px] p-10 flex flex-col justify-between group hover:bg-white/[0.04] transition-all hover:border-white/[0.1]">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-8 border border-emerald-500/20 group-hover:scale-110 transition-transform">
-                <Layers className="w-7 h-7 text-emerald-400" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-black tracking-tight text-white mb-3 leading-tight">Unified Goods.</h3>
-                <p className="text-gray-500 text-sm font-medium leading-relaxed">
-                  Sell PDFs, physical merchandise, or 1-on-1 consultations in a single, high-conversion interface.
-                </p>
-              </div>
-            </div>
-
-            {/* medium Bento Item */}
-            <div className="md:col-span-8 bg-[#0f172a]/30 border border-white/[0.05] rounded-[32px] p-10 flex flex-col md:flex-row items-center justify-between group hover:bg-[#0f172a]/50 transition-all hover:border-white/[0.1]">
-              <div className="max-w-xs">
-                <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mb-8 border border-white/10 group-hover:scale-110 transition-transform">
-                  <Cpu className="w-7 h-7 text-white" />
-                </div>
-                <h3 className="text-2xl font-black tracking-tight text-white mb-3">Instant Intelligence.</h3>
-                <p className="text-gray-500 text-sm font-medium leading-relaxed">
-                  Get real-time insights on which products are trending and optimize your pricing with automated suggestions.
-                </p>
-              </div>
-              <div className="mt-8 md:mt-0 flex flex-col items-center gap-4 bg-black/40 p-8 rounded-2xl border border-white/5 shadow-2xl skew-x-1 group-hover:skew-x-0 transition-transform">
-                <div className="h-2 w-32 bg-white/5 rounded-full overflow-hidden">
-                  <div className="h-full bg-sky-500 w-[70%]" />
-                </div>
-                <div className="h-2 w-24 bg-white/5 rounded-full overflow-hidden">
-                  <div className="h-full bg-emerald-500 w-[40%]" />
-                </div>
-              </div>
-            </div>
+        {/* One-line Pitch Section */}
+        <section id="pitch" className="bg-black text-[#FDDF14] py-16 md:py-20 px-6 border-y-4 border-black">
+          <div className="max-w-4xl mx-auto text-center">
+            <p className="text-lg md:text-2xl font-black leading-tight italic tracking-tighter">
+              A micro-commerce platform for phone-first sellers — physical goods, digital products, services and paid communities — all handled from one simple app.
+            </p>
           </div>
         </section>
 
-        {/* Value Prop Banner */}
-        <section className="px-6 py-20 bg-white/5 border-y border-white/[0.05]">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
+        {/* Features Section */}
+        <section id="features" className="bg-white py-16 md:py-24 px-6 space-y-24 md:space-y-32">
+          {/* Feature 1 */}
+          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
             <div className="space-y-4">
-              <h3 className="text-3xl font-black">Join 10,000+ creators.</h3>
-              <p className="text-gray-500 font-medium max-w-md">From designers and developers to writers and coaches, the future of commerce is micro.</p>
+              <div className="inline-block bg-[#FDDF14] px-3 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest border-2 border-black">Feature 01</div>
+              <div className="space-y-2">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-[1000] uppercase italic tracking-tighter leading-none">Setup in seconds</h2>
+                <p className="text-base md:text-lg opacity-70 font-medium leading-relaxed max-w-sm">Pick a name, add one photo, paste a payment method — and your store is live. No laptop. No plugins.</p>
+              </div>
+              <div className="bg-black/5 p-3 rounded-xl border-l-4 border-[#FDDF14] max-w-xs">
+                <p className="text-xs font-bold italic">“Create your store in 30s”</p>
+              </div>
             </div>
-            <div className="flex gap-8 items-center text-white/20 font-black text-2xl tracking-[0.2em]">
-              <span>DESIGNERS</span>
-              <span className="w-1 h-1 bg-white/10 rounded-full"></span>
-              <span>CREATORS</span>
-              <span className="w-1 h-1 bg-white/10 rounded-full"></span>
-              <span>COACHES</span>
+            <div className="bg-[#FDDF14] p-6 md:p-10 rounded-[24px] border-4 border-black shadow-[10px_10px_0px_rgba(0,0,0,1)] flex items-center justify-center">
+              <div className="bg-white p-5 rounded-[20px] border-2 border-black w-full max-w-[200px] space-y-3 shadow-lg">
+                <div className="h-3 w-16 bg-black/10 rounded" />
+                <div className="h-8 w-full bg-black/5 rounded-lg border-2 border-black border-dashed flex items-center justify-center">
+                  <Plus className="w-4 h-4 opacity-40" />
+                </div>
+                <div className="h-8 w-full bg-black rounded-lg flex items-center justify-center">
+                  <span className="text-white text-[9px] font-black uppercase tracking-widest">Publish</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Feature 2 */}
+          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
+            <div className="order-1 md:order-2 space-y-4">
+              <div className="inline-block bg-[#FDDF14] px-3 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest border-2 border-black">Feature 02</div>
+              <div className="space-y-2">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-[1000] uppercase italic tracking-tighter leading-none">Products & Services</h2>
+                <p className="text-base md:text-lg opacity-70 font-medium leading-relaxed max-w-sm">Physical goods, digital downloads, appointment bookings, paid communities — one link. Share with WhatsApp, Instagram, SMS.</p>
+              </div>
+              <div className="flex gap-3 pt-1">
+                <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center shadow-lg"><Phone className="w-4 h-4 text-white" /></div>
+                <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center shadow-lg"><Download className="w-4 h-4 text-white" /></div>
+                <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center shadow-lg"><Layers className="w-4 h-4 text-white" /></div>
+              </div>
+            </div>
+            <div className="order-2 md:order-1 bg-black p-6 md:p-10 rounded-[24px] border-4 border-[#FDDF14] shadow-[10px_10px_0px_rgba(253,223,20,1)] flex items-center justify-center">
+              <div className="bg-white p-5 rounded-[20px] border-2 border-black w-full max-w-[200px] space-y-3 shadow-lg">
+                <div className="aspect-square w-full bg-black/5 rounded-xl flex items-center justify-center">
+                  <Layers className="w-10 h-10 opacity-20" strokeWidth={1} />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="h-7 bg-black rounded-md flex items-center justify-center"><span className="text-[8px] text-white font-black uppercase italic">Buy Now</span></div>
+                  <div className="h-7 bg-white border-2 border-black rounded-md flex items-center justify-center"><span className="text-[8px] font-black uppercase italic">Book</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Feature 4 & 5 Grid */}
+          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+            <div className="bg-black text-[#FDDF14] p-8 md:p-10 rounded-[32px] border-4 border-black shadow-[12px_12px_0px_rgba(0,0,0,1)] space-y-4">
+              <h3 className="text-2xl md:text-3xl font-[1000] uppercase italic tracking-tighter leading-none">Manage from pocket</h3>
+              <p className="text-xs md:text-sm opacity-80 font-medium leading-relaxed max-w-xs">Simple order list, buyer chat, shipping labels, and instant refunds — built for mobile.</p>
+              <div className="bg-white/10 p-4 rounded-[16px] flex items-center justify-between group cursor-pointer hover:bg-white/15 transition-all max-w-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-7 h-7 bg-[#FDDF14] rounded-full flex items-center justify-center shadow-lg"><MessageSquare className="w-3.5 h-3.5 text-black" /></div>
+                  <span className="text-[9px] font-black uppercase tracking-widest">New order list</span>
+                </div>
+                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-2" />
+              </div>
+            </div>
+            <div className="bg-white text-black p-8 md:p-10 rounded-[32px] border-4 border-black shadow-[12px_12px_0px_rgba(0,0,0,1)] space-y-4">
+              <h3 className="text-2xl md:text-3xl font-[1000] uppercase italic tracking-tighter leading-none">Transparent pricing</h3>
+              <p className="text-xs md:text-sm opacity-70 font-medium leading-relaxed max-w-xs">Free plan to start. Pay-as-you-grow transaction fees and optional premium features.</p>
+              <div className="bg-black text-white p-4 rounded-[16px] flex items-center justify-between max-w-xs">
+                <span className="text-[9px] font-black uppercase tracking-widest">Pricing Model</span>
+                <span className="text-[9px] font-bold italic opacity-60">0 Monthly to start</span>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Final CTA */}
-        <section className="px-6 py-40 text-center max-w-5xl mx-auto">
-          <h3 className="text-[40px] sm:text-[64px] font-black mb-10 leading-[1] tracking-tighter">Your micro-empire <br />starts <span className="text-sky-400">here.</span></h3>
-          <p className="text-gray-500 text-xl font-medium mb-12 max-w-xl mx-auto">Build your store twice as fast, sell three times as much. No complexity, just commerce.</p>
-          <Button
-            onClick={() => router.push('/signup')}
-            className="h-20 px-16 rounded-full bg-white text-black text-xl font-black hover:bg-gray-100 transition-all hover:scale-105 active:scale-95 shadow-[0_0_50px_rgba(255,255,255,0.1)] border border-white/20"
-          >
-            Go Live Now
-          </Button>
+        {/* How it Works Section */}
+        <section id="how-it-works" className="bg-[#FDDF14] py-16 md:py-24 px-6 border-y-4 border-black">
+          <div className="max-w-5xl mx-auto space-y-12 md:space-y-16">
+            <div className="text-center space-y-3">
+              <h2 className="text-3xl md:text-5xl lg:text-6xl font-[1000] uppercase italic tracking-tighter leading-none">How it works</h2>
+              <p className="text-base md:text-lg font-bold opacity-60">Three steps to your first sale.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16 relative">
+              <div className="hidden md:block absolute top-[35px] left-0 w-full h-[3px] bg-black/10 z-0"></div>
+
+              <Step number="1" title="Create" desc="Open the app, name your store, add one product." />
+              <Step number="2" title="Share" desc="Send your link on WhatsApp, social, or a QR code." />
+              <Step number="3" title="Get paid" desc="Customers pay in their currency; you withdraw in yours." />
+            </div>
+          </div>
+        </section>
+
+        {/* Why MERH.STORE */}
+        <section className="bg-black text-white py-16 md:py-24 px-6">
+          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-start">
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-[1000] uppercase italic tracking-tighter text-[#FDDF14] leading-[0.85]">Why <br />MERH.STORE?</h2>
+            <div className="space-y-8">
+              <WhyCard title="Phone-first UX" desc="Built for one-thumb onboarding and management." />
+              <WhyCard title="Local Payments" desc="Mobile money + cards that work where you live." />
+              <WhyCard title="Zero Friction" desc="No laptop, no Stripe account, no tech skill required." />
+              <WhyCard title="Built for Scale" desc="Designed for low-bandwidth and resilient connectivity." />
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="bg-white py-16 md:py-24 px-6">
+          <div className="max-w-3xl mx-auto space-y-12 md:space-y-16">
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-[1000] uppercase italic tracking-tighter text-center leading-none">FAQ</h2>
+            <div className="space-y-1">
+              <FaqItem
+                q="Do I need a bank account?"
+                a="No. You can withdraw to supported mobile money and local payout methods directly from the app."
+              />
+              <FaqItem
+                q="What countries do you support?"
+                a="We support sellers worldwide. Payout options vary by country — we’ll show what’s available at signup."
+              />
+              <FaqItem
+                q="Is it safe to accept cards?"
+                a="Yes. Payments are processed securely via our partners, and we handle all fraud checks and 3DS."
+              />
+              <FaqItem
+                q="How long until I receive payouts?"
+                a="Standard: 1–7 business days; instant payout options are available on our Pro plan."
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Final CTA Strip */}
+        <section className="bg-black text-[#FDDF14] py-24 md:py-32 px-6 overflow-hidden relative border-t-[8px] border-[#FDDF14]">
+          <div className="max-w-4xl mx-auto text-center relative z-10 space-y-10 md:space-y-12">
+            <h3 className="text-3xl md:text-5xl lg:text-6xl font-[1000] tracking-tighter uppercase italic leading-[0.8]">
+              Ready to sell <br />from your phone?
+            </h3>
+            <div className="flex flex-col items-center justify-center gap-6">
+              <Button
+                onClick={() => router.push('/signup')}
+                className="bg-[#FDDF14] text-black h-14 md:h-16 px-10 md:px-12 rounded-full text-lg md:text-2xl font-black uppercase italic hover:scale-105 transition-all shadow-xl active:scale-95"
+              >
+                Go Live Now
+              </Button>
+              <p className="text-white/40 font-bold uppercase tracking-[0.3em] italic text-[10px] md:text-xs">Join the waitlist for early payout partners and pilot discounts.</p>
+            </div>
+          </div>
         </section>
       </main>
 
       {/* Footer */}
-      <footer className="px-6 py-24 border-t border-white/[0.03] text-center relative z-10">
-        <div className="flex flex-col items-center gap-10">
-          <div className="flex items-center justify-center gap-2.5">
-            <div className="w-8 h-8 flex items-center justify-center">
+      <footer className="px-6 md:px-12 py-10 md:py-12 bg-white border-t-[8px] border-black">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10 text-[9px] font-black uppercase tracking-[0.3em] italic">
+          <div className="flex items-center gap-3">
+            <div className="w-7 h-7">
               <img src="/LOGO-MERH.svg" alt="Merh Logo" className="w-full h-full" />
             </div>
-            <span className="text-lg font-black tracking-tight text-white/50">merh.store</span>
+            <span className="text-lg">© 2025 merh.store</span>
           </div>
-
-          <div className="flex gap-10 text-xs font-bold uppercase tracking-widest text-gray-600">
-            <Link href="#" className="hover:text-white transition-colors">Twitter</Link>
-            <Link href="#" className="hover:text-white transition-colors">Instagram</Link>
-            <Link href="#" className="hover:text-white transition-colors">LinkedIn</Link>
-            <Link href="#" className="hover:text-white transition-colors">Terms</Link>
+          <div className="flex gap-10 opacity-60">
+            <Link href="#" className="hover:text-black transition-colors">Privacy</Link>
+            <Link href="#" className="hover:text-black transition-colors">Terms</Link>
           </div>
-
-          <p className="text-gray-700 text-[10px] font-bold uppercase tracking-[0.3em]">© 2025 merh.store • Precision commerce for everyone.</p>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function Step({ number, title, desc }: { number: string, title: string, desc: string }) {
+  return (
+    <div className="relative z-10 space-y-4 md:space-y-6 text-center px-4">
+      <div className="w-12 h-12 md:w-16 md:h-16 bg-black text-[#FDDF14] rounded-full mx-auto flex items-center justify-center text-xl md:text-2xl font-black border-4 border-black shadow-[6px_6px_0px_rgba(0,0,0,0.1)] transition-transform hover:scale-110">
+        {number}
+      </div>
+      <div className="space-y-2">
+        <h4 className="text-xl md:text-2xl font-black uppercase italic tracking-tighter">{title}</h4>
+        <p className="text-xs md:text-sm font-bold opacity-60 leading-tight md:max-w-[180px] mx-auto">{desc}</p>
+      </div>
+    </div>
+  );
+}
+
+
+
+function WhyCard({ title, desc }: { title: string, desc: string }) {
+  return (
+    <div className="flex gap-5 md:gap-6 group">
+      <div className="shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-full border-[2px] border-[#FDDF14] flex items-center justify-center group-hover:bg-[#FDDF14] transition-all duration-300">
+        <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-[#FDDF14] group-hover:text-black" />
+      </div>
+      <div className="space-y-1.5 md:space-y-2">
+        <h4 className="text-xl md:text-2xl font-black uppercase italic tracking-tighter leading-none">{title}</h4>
+        <p className="text-sm md:text-base opacity-60 font-medium leading-relaxed max-w-sm">{desc}</p>
+      </div>
+    </div>
+  );
+}
+
+function FaqItem({ q, a }: { q: string, a: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border-b-[3px] border-black py-6 md:py-8 space-y-4 cursor-pointer group" onClick={() => setOpen(!open)}>
+      <div className="flex justify-between items-center gap-6 md:gap-8">
+        <h4 className="text-lg md:text-xl lg:text-2xl font-black uppercase italic tracking-tighter group-hover:opacity-70 transition-opacity leading-tight">{q}</h4>
+        <div className={`transition-transform duration-500 shrink-0 ${open ? 'rotate-[45deg]' : ''}`}>
+          <Plus className="w-6 h-6 md:w-8 md:h-8" strokeWidth={3} />
+        </div>
+      </div>
+      {open && (
+        <p className="text-sm md:text-lg font-bold opacity-70 animate-in fade-in slide-in-from-top-3 leading-relaxed max-w-2xl">
+          {a}
+        </p>
+      )}
     </div>
   );
 }

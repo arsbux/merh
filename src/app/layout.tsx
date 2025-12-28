@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 import type { Viewport } from "next";
 
 export const viewport: Viewport = {
-  themeColor: "#020617",
+  themeColor: "#FDDF14",
 };
 
 import { Toaster } from "@/components/ui/sonner";
