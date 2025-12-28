@@ -725,7 +725,7 @@ export default function DashboardPage() {
             <header className="fixed top-0 left-0 right-0 h-16 flex items-center justify-between px-6 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 flex items-center justify-center">
-                        <img src="/LOGO-MERH.svg" alt="Merh Logo" className="w-full h-full" />
+                        <img src="/ventra-logo.svg" alt="Ventra Logo" className="w-full h-full" />
                     </div>
                     <div className="flex flex-col">
                         <span className="font-bold text-sm tracking-tight capitalize leading-none mb-0.5">{store?.slug || "No Handle"}</span>
@@ -782,7 +782,7 @@ export default function DashboardPage() {
             </header>
 
             {/* Dashboard Canvas */}
-            <main className={`transition-all duration-500 ${activeTab === 'store' ? 'w-full pb-0' : 'max-w-[480px] mx-auto pt-24 px-6 pb-32'}`}>
+            <main className={`transition-all duration-500 md:pl-20 ${activeTab === 'store' ? 'w-full pb-0' : 'max-w-[480px] mx-auto pt-24 px-6 pb-32'}`}>
 
                 {/* SETTINGS TAB */}
                 {activeTab === 'settings' && (
@@ -1863,8 +1863,65 @@ export default function DashboardPage() {
                 )
             }
 
-            {/* Bottom Navigation Bar */}
-            <nav className="fixed bottom-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-xl border-t border-slate-100 z-50 flex items-center justify-around px-2 safe-area-bottom">
+            {/* Desktop Side Navigation */}
+            <aside className="hidden md:flex fixed top-16 left-0 bottom-0 w-20 bg-white/80 backdrop-blur-xl border-r border-slate-100 z-40 flex-col items-center py-6 gap-8">
+                <button
+                    onClick={() => setActiveTab('store')}
+                    className={`flex flex-col items-center justify-center gap-1.5 w-12 h-12 rounded-2xl transition-all ${activeTab === 'store'
+                        ? 'bg-black text-white shadow-lg shadow-black/20'
+                        : 'bg-transparent text-slate-400 hover:text-slate-600 hover:bg-slate-50'
+                        }`}
+                >
+                    <Home className="w-5 h-5" strokeWidth={activeTab === 'store' ? 2.5 : 2} />
+                </button>
+
+                <div className="w-full h-[1px] bg-slate-100 mx-auto w-10" />
+
+                <div className="flex flex-col gap-6">
+                    <button
+                        onClick={() => setActiveTab('products')}
+                        className={`group relative flex items-center justify-center w-12 h-12 rounded-xl transition-all ${activeTab === 'products' ? 'text-black bg-slate-50' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
+                    >
+                        <Package className="w-5 h-5" strokeWidth={activeTab === 'products' ? 2.5 : 2} />
+                        <span className="absolute left-14 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                            Products
+                        </span>
+                    </button>
+
+                    <button
+                        onClick={() => setActiveTab('tools')}
+                        className={`group relative flex items-center justify-center w-12 h-12 rounded-xl transition-all ${activeTab === 'tools' ? 'text-black bg-slate-50' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
+                    >
+                        <Sparkles className="w-5 h-5" strokeWidth={activeTab === 'tools' ? 2.5 : 2} />
+                        <span className="absolute left-14 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                            Tools
+                        </span>
+                    </button>
+
+                    <button
+                        onClick={() => setActiveTab('earnings')}
+                        className={`group relative flex items-center justify-center w-12 h-12 rounded-xl transition-all ${activeTab === 'earnings' ? 'text-black bg-slate-50' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
+                    >
+                        <Banknote className="w-5 h-5" strokeWidth={activeTab === 'earnings' ? 2.5 : 2} />
+                        <span className="absolute left-14 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                            Earnings
+                        </span>
+                    </button>
+
+                    <button
+                        onClick={() => setActiveTab('settings')}
+                        className={`group relative flex items-center justify-center w-12 h-12 rounded-xl transition-all ${activeTab === 'settings' ? 'text-black bg-slate-50' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
+                    >
+                        <Settings className="w-5 h-5" strokeWidth={activeTab === 'settings' ? 2.5 : 2} />
+                        <span className="absolute left-14 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                            Settings
+                        </span>
+                    </button>
+                </div>
+            </aside>
+
+            {/* Mobile Bottom Navigation Bar */}
+            <nav className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-xl border-t border-slate-100 z-50 flex items-center justify-around px-2 safe-area-bottom">
                 <button
                     onClick={() => setActiveTab('products')}
                     className={`flex flex-col items-center gap-1.5 w-[64px] py-1 rounded-xl transition-all ${activeTab === 'products' ? 'text-black' : 'text-slate-400 hover:text-slate-600'}`}
