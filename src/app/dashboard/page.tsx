@@ -58,7 +58,7 @@ export default function DashboardPage() {
     });
 
     const [links, setLinks] = useState<any[]>([]);
-    const [activeTab, setActiveTab] = useState<'store' | 'products' | 'tools' | 'settings' | 'earnings'>('store');
+    const [activeTab, setActiveTab] = useState<'store' | 'products' | 'tools' | 'settings' | 'earnings'>('products');
     const [products, setProducts] = useState<any[]>([]);
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<any | null>(null);
