@@ -27,7 +27,7 @@ function OnboardingFlow() {
 
     const slides = [
         {
-            title: "Ventra Helps anyone operate a full business on their mobile phone",
+            title: "Ventra Helps anyone operate a full online business on their mobile phone",
             subtitle: "",
         },
         {
