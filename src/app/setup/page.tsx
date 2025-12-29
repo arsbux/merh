@@ -307,10 +307,6 @@ export default function SetupPage() {
                     )}
                 </div>
 
-                {/* Bottom Home Indicator */}
-                <div className="mt-auto pb-4 flex justify-center">
-                    <div className="w-32 h-1.5 bg-black/10 rounded-full" />
-                </div>
             </div>
 
             <style jsx global>{`

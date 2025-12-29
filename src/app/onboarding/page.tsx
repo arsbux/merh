@@ -123,7 +123,7 @@ function OnboardingFlow() {
                 <div className="flex-1" />
 
                 {/* Bottom Content */}
-                <div className="px-6 pb-12">
+                <div className="px-6 pb-20">
                     {!isSignupScreen ? (
                         /* Onboarding Slides */
                         <div
@@ -218,10 +218,6 @@ function OnboardingFlow() {
                     )}
                 </div>
 
-                {/* Bottom Home Indicator */}
-                <div className="pb-8 flex justify-center">
-                    <div className="w-32 h-1 bg-white/40 rounded-full" />
-                </div>
             </div>
         </div>
     );

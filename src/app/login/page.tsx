@@ -91,7 +91,7 @@ function LoginForm() {
                 <div className="flex-1" />
 
                 {/* Bottom Content */}
-                <div className="px-6 pb-12">
+                <div className="px-6 pb-20">
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <h1 className="text-[28px] font-bold text-white leading-tight mb-2">
                             Welcome Back
@@ -178,11 +178,6 @@ function LoginForm() {
                             Don't have an account? <span className="font-semibold underline">Sign Up</span>
                         </button>
                     </div>
-                </div>
-
-                {/* Bottom Home Indicator */}
-                <div className="pb-8 flex justify-center">
-                    <div className="w-32 h-1 bg-white/40 rounded-full" />
                 </div>
             </div>
         </div>
