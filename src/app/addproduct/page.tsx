@@ -43,7 +43,7 @@ export default function AddProductPage() {
             const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
-                router.push("/login");
+                router.push("/onboarding");
                 return;
             }
             setUser(user);

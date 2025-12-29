@@ -40,7 +40,7 @@ export default function SetupPage() {
             const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
-                router.push("/login");
+                router.push("/onboarding");
             } else {
                 setUser(user);
 
