@@ -638,18 +638,38 @@ export default function DashboardPage() {
                     </div>
                 )}
 
-                {activeTab === 'tools' && <ToolsView />}
+                {activeTab === 'tools' && (
+                    <div className="relative">
+                        <div className="blur-sm pointer-events-none select-none">
+                            <ToolsView />
+                        </div>
+                        <div className="absolute inset-0 z-10 flex items-center justify-center">
+                            <div className="bg-white/80 backdrop-blur-md px-8 py-4 rounded-3xl border border-slate-200 shadow-2xl animate-in zoom-in duration-300">
+                                <span className="text-xl font-black text-slate-900 tracking-tight">Coming Soon</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 {activeTab === 'earnings' && (
-                    <EarningsView
-                        payoutDetails={payoutDetails} setPayoutDetails={setPayoutDetails}
-                        savingPayout={savingPayout}
-                        onSavePayout={async () => {
-                            setSavingPayout(true);
-                            const res = await updateStoreProfile(user.id, { payoutDetails });
-                            if (res.success) toast.success("Payout details saved!");
-                            setSavingPayout(false);
-                        }}
-                    />
+                    <div className="relative">
+                        <div className="blur-sm pointer-events-none select-none">
+                            <EarningsView
+                                payoutDetails={payoutDetails} setPayoutDetails={setPayoutDetails}
+                                savingPayout={savingPayout}
+                                onSavePayout={async () => {
+                                    setSavingPayout(true);
+                                    const res = await updateStoreProfile(user.id, { payoutDetails });
+                                    if (res.success) toast.success("Payout details saved!");
+                                    setSavingPayout(false);
+                                }}
+                            />
+                        </div>
+                        <div className="absolute inset-0 z-10 flex items-center justify-center">
+                            <div className="bg-white/80 backdrop-blur-md px-8 py-4 rounded-3xl border border-slate-200 shadow-2xl animate-in zoom-in duration-300">
+                                <span className="text-xl font-black text-slate-900 tracking-tight">Coming Soon</span>
+                            </div>
+                        </div>
+                    </div>
                 )}
             </main>
 
