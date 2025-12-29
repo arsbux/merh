@@ -858,7 +858,7 @@ export default function DashboardPage() {
                                 <div
                                     className="bg-slate-50 rounded-xl p-4 flex items-center justify-between group cursor-pointer active:scale-[0.98] transition-all"
                                     onClick={() => {
-                                        navigator.clipboard.writeText(`merh.app/${store?.slug}`);
+                                        navigator.clipboard.writeText(`ventra.io/${store?.slug}`);
                                         toast.success("Link copied!");
                                     }}
                                 >
@@ -878,7 +878,7 @@ export default function DashboardPage() {
                                         <Smartphone className="w-6 h-6 text-sky-600" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="text-base font-black text-slate-900 tracking-tight">Merh for Mobile</h3>
+                                        <h3 className="text-base font-black text-slate-900 tracking-tight">Ventra for Mobile</h3>
                                         <p className="text-xs text-slate-400 font-medium leading-tight">Install for faster access and offline support.</p>
                                     </div>
                                 </div>
@@ -903,7 +903,7 @@ export default function DashboardPage() {
                         </Button>
 
                         <p className="text-center text-xs text-slate-300 font-bold pt-6">
-                            Merh App v1.0.0
+                            Ventra App v1.0.0
                         </p>
                     </div>
                 )}

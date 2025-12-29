@@ -105,7 +105,7 @@ export default async function ProductPage({
             {/* Footer */}
             <footer className="w-full pt-12 pb-4 text-center mt-auto flex flex-col items-center gap-4">
                 <Link href="/" className="text-[10px] font-black tracking-[0.3em] opacity-30 uppercase flex items-center gap-2 hover:opacity-100 transition-opacity">
-                    Powered By merh <MoreVertical className="w-3 h-3" />
+                    Powered By Ventra <MoreVertical className="w-3 h-3" />
                 </Link>
             </footer>
         </div>

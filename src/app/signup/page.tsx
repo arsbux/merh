@@ -43,7 +43,7 @@ function SignupForm() {
                     emailRedirectTo: `${window.location.origin}/auth/callback`,
                 }
             });
-            
+
             if (authError) throw authError;
 
             if (authData.user) {
@@ -87,7 +87,7 @@ function SignupForm() {
                 {/* Header Section */}
                 <div className="text-center mb-12 space-y-4">
                     <div className="w-20 h-20 flex items-center justify-center mx-auto mb-8">
-                        <img src="/LOGO-MERH.svg" alt="Merh Logo" className="w-full h-full" />
+                        <img src="/ventra-logo.svg" alt="Ventra Logo" className="w-full h-full" />
                     </div>
                     <h1 className="text-3xl sm:text-4xl font-black tracking-tighter leading-tight">
                         Reserve <span className="text-sky-400">@{storeName || 'yourname'}</span>
@@ -104,13 +104,13 @@ function SignupForm() {
                                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600">
                                     <AtSign className="w-4 h-4" />
                                 </div>
-                                <span className="absolute left-10 top-1/2 -translate-y-1/2 text-gray-600 font-black text-sm">merh.store/</span>
+                                <span className="absolute left-10 top-1/2 -translate-y-1/2 text-gray-600 font-black text-sm">ventra.io/</span>
                                 <Input
                                     placeholder="yourname"
                                     value={storeName}
                                     onChange={(e) => setStoreName(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
                                     required
-                                    className="h-14 pl-[108px] rounded-xl bg-white/[0.03] border-white/[0.08] focus:border-sky-500/50 focus:ring-sky-500/10 transition-all text-base font-black text-white placeholder:text-gray-800"
+                                    className="h-14 pl-[100px] rounded-xl bg-white/[0.03] border-white/[0.08] focus:border-sky-500/50 focus:ring-sky-500/10 transition-all text-base font-black text-white placeholder:text-gray-800"
                                 />
                             </div>
                         </div>
@@ -141,7 +141,7 @@ function SignupForm() {
                                 </div>
                                 <Input
                                     type="email"
-                                    placeholder="keith@merh.store"
+                                    placeholder="keith@tryventra.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required

@@ -309,7 +309,7 @@ export default async function StorefrontPage({
             {/* Powered By */}
             <footer className="w-full pt-12 pb-4 text-center mt-auto flex flex-col items-center gap-4">
                 <p className="text-[10px] font-black tracking-[0.3em] opacity-20 uppercase flex items-center gap-2">
-                    Powered By merh.store <MoreVertical className="w-3 h-3" />
+                    Powered By Ventra <MoreVertical className="w-3 h-3" />
                 </p>
             </footer>
         </div>

@@ -63,7 +63,7 @@ function LoginForm() {
                 {/* Header Section */}
                 <div className="text-center mb-12 space-y-4">
                     <div className="w-20 h-20 flex items-center justify-center mx-auto mb-8">
-                        <img src="/LOGO-MERH.svg" alt="Merh Logo" className="w-full h-full" />
+                        <img src="/ventra-logo.svg" alt="Ventra Logo" className="w-full h-full" />
                     </div>
                     <h1 className="text-3xl sm:text-4xl font-black tracking-tighter leading-tight">Welcome back</h1>
                     <p className="text-gray-500 text-base font-medium">
@@ -86,7 +86,7 @@ function LoginForm() {
                                 <Input
                                     id="email"
                                     type="email"
-                                    placeholder="keith@merh.store"
+                                    placeholder="keith@tryventra.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
