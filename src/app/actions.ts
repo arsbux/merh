@@ -3,7 +3,23 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-export async function createStore(userId: string, email: string, slug: string, name: string) {
+export async function getUserStore(userId: string) {
+    try {
+        const supabase = await createClient();
+        const { data, error } = await supabase
+            .from('Store')
+            .select('*')
+            .eq('userId', userId)
+            .single();
+
+        if (error && error.code !== 'PGRST116') throw error;
+        return { success: true, store: data };
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+}
+
+export async function createStore(userId: string, email: string, slug: string, name: string, country?: string, type?: string, whatsapp?: string) {
     try {
         const supabase = await createClient();
 
@@ -19,27 +35,35 @@ export async function createStore(userId: string, email: string, slug: string, n
         // Ensure user exists (upsert handles existing email/id)
         const { error: userError } = await supabase
             .from('User')
-            .upsert({ id: userId, email }, { onConflict: 'email' });
+            .upsert({
+                id: userId,
+                email
+            }, { onConflict: 'email' });
 
         if (userError) {
             console.error("User upsert error:", userError);
             return { success: false, error: userError.message };
         }
 
-        // Create store
+        // Create or Update store (upsert on userId)
         const { data: store, error: storeError } = await supabase
             .from('Store')
-            .insert({
-                id: crypto.randomUUID(),
+            .upsert({
+                id: crypto.randomUUID(), // Only used if creating new
                 slug,
                 name: name || slug,
-                userId
-            })
+                userId,
+                country: country || null,
+                whatsapp: whatsapp || null,
+                socialLinks: { whatsapp: whatsapp || "" }, // Keep in JSON for redundancy/compatibility
+                updatedAt: new Date().toISOString(),
+                createdAt: new Date().toISOString()
+            }, { onConflict: 'userId' })
             .select()
             .single();
 
         if (storeError) {
-            console.error("Store creation error:", storeError);
+            console.error("Store upsert error:", storeError);
             return { success: false, error: storeError.message };
         }
 
@@ -59,8 +83,10 @@ export async function updateStoreProfile(userId: string, data: {
     bannerUrl?: string;
     themeColor?: string;
     headerLayout?: string;
+    storeLayout?: string;
     socialLinks?: any;
     payoutDetails?: any;
+    whatsapp?: string;
 }) {
     try {
         const supabase = await createClient();
@@ -88,6 +114,7 @@ export async function updateStoreProfile(userId: string, data: {
                     bannerUrl: data.bannerUrl,
                     themeColor: data.themeColor || '#000000',
                     headerLayout: data.headerLayout || 'MODERN_CARD',
+                    storeLayout: data.storeLayout || 'LIST_DETAIL',
                     socialLinks: data.socialLinks || {},
                     payoutDetails: data.payoutDetails || {}
                 })
@@ -114,8 +141,10 @@ export async function updateStoreProfile(userId: string, data: {
                 bannerUrl: data.bannerUrl,
                 themeColor: data.themeColor,
                 headerLayout: data.headerLayout,
+                storeLayout: data.storeLayout,
                 socialLinks: data.socialLinks,
                 payoutDetails: data.payoutDetails,
+                whatsapp: data.whatsapp,
                 updatedAt: new Date().toISOString()
             })
             .eq('userId', userId);
@@ -330,6 +359,7 @@ export async function addProduct(storeId: string, data: {
     name: string;
     description?: string;
     price: number;
+    currency?: string;
     type: string;
     imageUrls: string[];
     fileUrl?: string;
@@ -359,6 +389,7 @@ export async function addProduct(storeId: string, data: {
                 name: data.name,
                 description: data.description || null,
                 price: data.price,
+                currency: data.currency || "USD",
                 type: data.type,
                 imageUrls: data.imageUrls,
                 fileUrl: data.fileUrl || null,
@@ -384,6 +415,7 @@ export async function updateProduct(productId: string, data: {
     name?: string;
     description?: string;
     price?: number;
+    currency?: string;
     type?: string;
     imageUrls?: string[];
     fileUrl?: string;
@@ -398,6 +430,7 @@ export async function updateProduct(productId: string, data: {
                 name: data.name,
                 description: data.description,
                 price: data.price,
+                currency: data.currency,
                 type: data.type,
                 imageUrls: data.imageUrls,
                 fileUrl: data.fileUrl,

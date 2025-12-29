@@ -4,7 +4,10 @@ import {
     User,
     MoreVertical,
     Link as LinkIcon,
-    ImageIcon
+    ImageIcon,
+    ShoppingBag,
+    Plus,
+    Heart
 } from "lucide-react";
 import Link from "next/link";
 import { getStoreBySlug } from "@/app/actions";
@@ -29,276 +32,88 @@ export default async function StorefrontPage({
 
     // Simple heuristic: if theme is black, use dark mode aesthetics. 
     // Otherwise, use the color as the background or accent.
-    const isDark = themeColor === "#000000";
-    const bgColor = isDark ? "#020617" : themeColor;
-    const textColor = "#ffffff";
-    const cardBg = "rgba(15, 23, 42, 0.4)"; // Deep navy translucent
-    const buttonBg = "#ffffff";
-    const buttonText = isDark ? "#020617" : themeColor;
+    // The store now follows a fixed, premium design based on the requested image.
+    const isDark = false; // standardizing on white theme as per the requested design
+    const bgColor = "#ffffff";
+    const textColor = "#000000";
+    const cardBg = "#F5F5F5"; // Light gray for info box and card elements
+    const borderColor = "rgba(0, 0, 0, 0.05)";
 
     return (
         <div
-            className="min-h-screen flex flex-col items-center px-4 pt-20 pb-12 selection:bg-sky-400 selection:text-white transition-colors duration-1000 font-sans"
+            className="min-h-screen flex flex-col items-center selection:bg-black selection:text-white font-sans overflow-x-hidden"
             style={{ backgroundColor: bgColor, color: textColor }}
         >
-
-            {/* Profile Header Renderer */}
-            {(() => {
-                const layout = (store as any).headerLayout || 'MODERN_CARD';
-                const bannerUrl = (store as any).bannerUrl;
-
-                if (layout === 'PROFILE_BANNER') {
-                    return (
-                        <div className="w-full max-w-[400px] mb-10 text-center relative">
-                            <div className="w-full h-40 rounded-2xl overflow-hidden border border-white/10 shadow-xl mb-[-50px]">
-                                {bannerUrl ? (
-                                    <img src={bannerUrl} alt="" className="w-full h-full object-cover" />
-                                ) : (
-                                    <div className="w-full h-full bg-white/5" />
-                                )}
+            {/* Store Header Section */}
+            <div className="w-full max-w-[480px] pt-12 px-6 mb-10 flex items-start gap-4">
+                <div className="flex flex-col items-center gap-3 w-1/3 text-center">
+                    <div className="w-24 h-24 rounded-full overflow-hidden bg-slate-100 border border-black/5 shadow-inner">
+                        {store.avatarUrl ? (
+                            <img src={store.avatarUrl} alt={store.name || ""} className="w-full h-full object-cover" />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                                <User className="w-10 h-10 opacity-10" />
                             </div>
-                            <div className={`w-24 h-24 rounded-full mx-auto relative z-10 overflow-hidden border-4 shadow-2xl ${isDark ? 'bg-gray-800 border-[#020617]' : 'bg-white border-' + themeColor}`}>
-                                {store.avatarUrl ? (
-                                    <img src={store.avatarUrl} alt={store.name || ""} className="w-full h-full object-cover" />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-[#1e293b]">
-                                        <User className="w-10 h-10 opacity-20" />
-                                    </div>
-                                )}
-                            </div>
-                            <div className="mt-4">
-                                <h1 className="text-3xl font-black mb-1 tracking-tight">{store.name || slug}</h1>
-                                <p className="text-sm font-medium opacity-70 max-w-[300px] mx-auto leading-relaxed">{store.bio}</p>
-                                <div className="flex gap-4 justify-center mt-6 flex-wrap">
-                                    <SocialLinks socialLinks={socialLinks} />
-                                </div>
-                            </div>
-                        </div>
-                    );
-                }
-
-                if (layout === 'MINIMAL_TOP') {
-                    return (
-                        <div className="w-full max-w-[400px] mb-12 flex flex-col items-center text-center">
-                            <div className={`w-20 h-20 rounded-full mb-6 overflow-hidden border-2 shadow-xl ${isDark ? 'bg-gray-800 border-white/5' : 'bg-white/20 border-white/20'}`}>
-                                {store.avatarUrl ? (
-                                    <img src={store.avatarUrl} alt={store.name || ""} className="w-full h-full object-cover" />
-                                ) : (
-                                    <User className="w-10 h-10 opacity-20 mx-auto mt-5" />
-                                )}
-                            </div>
-                            <h1 className="text-4xl font-black mb-3 tracking-tighter">{store.name || slug}</h1>
-                            <p className="text-base font-medium opacity-60 max-w-[320px] leading-relaxed mb-6">{store.bio}</p>
-                            <div className="flex gap-6 justify-center flex-wrap">
-                                <SocialLinks socialLinks={socialLinks} />
-                            </div>
-                        </div>
-                    );
-                }
-
-                if (layout === 'FULL_HERO') {
-                    return (
-                        <div className="w-full max-w-[400px] mb-10 overflow-hidden rounded-3xl border border-white/10 shadow-2xl relative aspect-[4/5] flex flex-col justify-end p-8">
-                            {bannerUrl && (
-                                <div className="absolute inset-0 z-0">
-                                    <img src={bannerUrl} alt="" className="w-full h-full object-cover" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-                                </div>
-                            )}
-                            <div className="relative z-10 text-left">
-                                <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-white/20 shadow-xl mb-4">
-                                    {store.avatarUrl ? (
-                                        <img src={store.avatarUrl} alt="" className="w-full h-full object-cover" />
-                                    ) : (
-                                        <User className="w-8 h-8 opacity-20 mx-auto mt-4" />
-                                    )}
-                                </div>
-                                <h1 className="text-4xl font-black text-white mb-2 leading-none">{store.name || slug}</h1>
-                                <p className="text-sm font-medium text-white/70 max-w-[280px] leading-relaxed mb-6">{store.bio}</p>
-                                <div className="flex gap-4 flex-wrap">
-                                    <SocialLinks socialLinks={socialLinks} />
-                                </div>
-                            </div>
-                        </div>
-                    );
-                }
-
-                // Default: MODERN_CARD
-                return (
-                    <div
-                        className="w-full max-w-[400px] text-center mb-10 p-8 rounded-2xl border border-white/10 shadow-2xl backdrop-blur-md"
-                        style={{ backgroundColor: cardBg }}
-                    >
-                        <div className={`w-28 h-28 rounded-full mx-auto mb-6 overflow-hidden border-2 shadow-2xl ${isDark ? 'bg-gray-800 border-white/5' : 'bg-white/20 border-white/20'}`}>
-                            {store.avatarUrl ? (
-                                <img src={store.avatarUrl} alt={store.name || ""} className="w-full h-full object-cover" />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                    <User className="w-12 h-12 opacity-20" />
-                                </div>
-                            )}
-                        </div>
-
-                        <h1 className="text-3xl font-black mb-2 tracking-tight">{store.name || slug}</h1>
-                        <p className="text-sm font-medium leading-relaxed max-w-[280px] mx-auto opacity-70">{store.bio}</p>
-
-                        <div className="flex gap-5 justify-center mt-8 px-4 flex-wrap">
-                            <SocialLinks socialLinks={socialLinks} />
-                        </div>
+                        )}
                     </div>
-                );
-            })()}
+                    <h1 className="text-lg font-black tracking-tight leading-tight">{store.name || slug}</h1>
+                </div>
 
-            {/* Content Blocks */}
-            <div className="w-full max-w-[400px] space-y-4">
-                {store.links.map((block: any) => {
-                    if (block.type === 'HEADING') {
-                        return (
-                            <h3 key={block.id} className="text-sm font-black uppercase tracking-[0.2em] text-center pt-8 pb-2 opacity-40">
-                                {block.title}
-                            </h3>
-                        );
-                    }
-
-                    if (block.type === 'TEXT') {
-                        return (
-                            <div key={block.id} className="rounded-xl p-8 shadow-lg backdrop-blur-sm border border-white/10" style={{ backgroundColor: cardBg }}>
-                                {block.createdAt && (
-                                    <span className="block text-[9px] font-black uppercase tracking-[0.2em] opacity-30 mb-4">
-                                        {new Date(block.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                                    </span>
-                                )}
-                                <div className="text-sm font-medium leading-relaxed opacity-90 whitespace-pre-wrap">
-                                    {block.url}
-                                </div>
-                            </div>
-                        );
-                    }
-
-                    if (block.type === 'IMAGE') {
-                        return (
-                            <div key={block.id} className={`group relative rounded-xl overflow-hidden shadow-xl backdrop-blur-sm border border-white/10`} style={{ backgroundColor: cardBg }}>
-                                {block.url ? (
-                                    <img src={block.url} alt={block.title || ""} className="w-full h-auto block" />
-                                ) : (
-                                    <div className="w-full aspect-square flex items-center justify-center bg-white/5">
-                                        <ImageIcon className="w-12 h-12 opacity-10" />
-                                    </div>
-                                )}
-                                {block.title && (
-                                    <div className="p-5 text-center border-t border-white/5" style={{ backgroundColor: cardBg }}>
-                                        <p className="text-sm font-bold opacity-90">{block.title}</p>
-                                        {block.createdAt && (
-                                            <span className="block text-[9px] font-black uppercase tracking-[0.2em] opacity-30 mt-1">
-                                                {new Date(block.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                                            </span>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    }
-
-                    if (block.type === 'YOUTUBE') {
-                        const videoId = block.url.includes('http') ? (block.url.split('v=')[1]?.split('&')[0] || block.url.split('/').pop()) : null;
-                        if (!videoId || videoId === 'https:' || videoId === 'http:') {
-                            return (
-                                <div key={block.id} className="rounded-xl overflow-hidden shadow-2xl relative aspect-video bg-gray-100 flex items-center justify-center border border-white/10">
-                                    <div className="text-center">
-                                        <Youtube className="w-12 h-12 text-gray-200 mx-auto" />
-                                        {block.createdAt && (
-                                            <span className="block text-[9px] font-black uppercase tracking-[0.2em] opacity-20 mt-4 text-black">
-                                                {new Date(block.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            )
-                        }
-                        return (
-                            <div key={block.id} className="group flex flex-col gap-2">
-                                <div className="rounded-xl overflow-hidden shadow-2xl relative aspect-video bg-black border border-white/10">
-                                    <iframe
-                                        width="100%"
-                                        height="100%"
-                                        src={`https://www.youtube.com/embed/${videoId}`}
-                                        title="YouTube video player"
-                                        frameBorder="0"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                        allowFullScreen
-                                    ></iframe>
-                                </div>
-                                {block.createdAt && (
-                                    <span className="block text-[9px] font-black uppercase tracking-[0.2em] opacity-30 text-center">
-                                        {new Date(block.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                                    </span>
-                                )}
-                            </div>
-                        );
-                    }
-
-                    // Default: Button Link
-                    const isValidUrl = block.url && (block.url.startsWith('http') || block.url.startsWith('mailto:') || block.url.startsWith('tel:'));
-                    const href = isValidUrl ? block.url : '#';
-
-                    return (
-                        <div key={block.id} className="flex flex-col gap-2">
-                            <Link
-                                href={href}
-                                target={isValidUrl ? "_blank" : undefined}
-                                prefetch={false}
-                                className={`block w-full rounded-lg py-6 text-center text-lg font-bold shadow-xl transition-all border border-white/10 ${isValidUrl ? 'hover:scale-[1.02] active:scale-[0.98]' : 'opacity-50 cursor-default'}`}
-                                style={{ backgroundColor: buttonBg, color: buttonText }}
-                            >
-                                {block.title}
-                            </Link>
-                            {block.createdAt && (
-                                <span className="block text-[9px] font-black uppercase tracking-[0.2em] opacity-30 text-center">
-                                    {new Date(block.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                                </span>
-                            )}
-                        </div>
-                    );
-                })}
+                {store.bio && (
+                    <div className="flex-1 min-h-[120px] bg-[#EAEAEA] rounded-xl p-5 flex items-center justify-center text-center">
+                        <p className="text-xs font-bold leading-relaxed text-black/60">
+                            {store.bio}
+                        </p>
+                    </div>
+                )}
             </div>
 
-            {/* Products Section */}
+            {/* Social Links Section (Optional but useful) */}
+            <div className="w-full max-w-[480px] px-6 mb-12 flex justify-start gap-4">
+                <SocialLinks socialLinks={socialLinks} isDark={false} />
+            </div>
+
+            {/* Products Grid Section */}
             {store.products && store.products.length > 0 && (
-                <div className="w-full max-w-[400px] space-y-4 mt-8">
-                    <h2 className="text-lg font-black tracking-tight opacity-80 px-1">Products</h2>
-                    <div className="grid grid-cols-1 gap-4">
+                <div className="w-full max-w-[480px] px-6 pb-20">
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-6">
                         {store.products.map((product: any) => (
                             <Link
                                 key={product.id}
-                                href={`/${slug}/${product.slug || product.id}`}
-                                className="block rounded-xl overflow-hidden shadow-xl backdrop-blur-md border border-white/10 group transition-all hover:scale-[1.01]"
-                                style={{ backgroundColor: cardBg }}
+                                href={`/${slug}/${product.slug || product.slugId || product.id}`}
+                                className="flex flex-col gap-3 group animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both"
+                                style={{ animationDelay: `${Math.random() * 200}ms` }}
                             >
-                                {product.imageUrls?.[0] && (
-                                    <div className="aspect-video overflow-hidden">
+                                <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-slate-50 shadow-sm border border-black/5 group">
+                                    {product.imageUrls?.[0] ? (
                                         <img
                                             src={product.imageUrls[0]}
                                             alt={product.name}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                                         />
-                                    </div>
-                                )}
-                                <div className="p-5">
-                                    <div className="flex items-start justify-between gap-2 mb-2">
-                                        <h3 className="font-bold text-lg line-clamp-2 leading-tight">{product.name}</h3>
-                                        <span className="text-sky-400 font-black text-lg whitespace-nowrap">
-                                            ${parseFloat(product.price || 0).toFixed(2)}
-                                        </span>
-                                    </div>
-                                    {product.description && (
-                                        <p className="text-sm opacity-60 mb-4 line-clamp-2">{product.description}</p>
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center">
+                                            <ImageIcon className="w-8 h-8 opacity-5" />
+                                        </div>
                                     )}
-                                    <button
-                                        className="w-full py-4 rounded-lg font-bold text-center transition-all hover:scale-[1.02] active:scale-[0.98]"
-                                        style={{ backgroundColor: buttonBg, color: buttonText }}
-                                    >
-                                        {product.buttonText || "Buy Now"}
-                                    </button>
+
+                                    {/* Top Control: Like/Heart */}
+                                    <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/10 backdrop-blur-md flex items-center justify-center">
+                                        <Heart className="w-4 h-4 text-white" />
+                                    </div>
+
+                                    {/* Bottom Overlay Gradient */}
+                                    <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none" />
+
+                                    {/* Text Content */}
+                                    <div className="absolute bottom-4 left-4 right-4 text-white">
+                                        <h3 className="text-xs font-bold leading-tight line-clamp-1 opacity-90">{product.name}</h3>
+                                        <p className="text-base font-black mt-0.5">
+                                            {product.currency === 'UGX' ? 'USh' : '$'}{parseFloat(product.price || 0).toLocaleString()}
+                                        </p>
+                                    </div>
+
+                                    {/* Bottom Right Action: Shopping Bag - REMOVED */}
                                 </div>
                             </Link>
                         ))}
@@ -306,8 +121,8 @@ export default async function StorefrontPage({
                 </div>
             )}
 
-            {/* Powered By */}
-            <footer className="w-full pt-12 pb-4 text-center mt-auto flex flex-col items-center gap-4">
+            {/* Footer */}
+            <footer className="w-full pt-12 pb-8 text-center mt-auto flex flex-col items-center gap-4">
                 <p className="text-[10px] font-black tracking-[0.3em] opacity-20 uppercase flex items-center gap-2">
                     Powered By Ventra <MoreVertical className="w-3 h-3" />
                 </p>
@@ -316,39 +131,31 @@ export default async function StorefrontPage({
     );
 }
 
-function SocialLinks({ socialLinks }: { socialLinks: any }) {
+function SocialLinks({ socialLinks, isDark }: { socialLinks: any, isDark: boolean }) {
+    const iconClass = `w-8 h-8 opacity-80 hover:opacity-100 transition-all ${isDark ? 'brightness-0 invert' : ''}`;
+
     return (
-        <>
+        <div className="flex gap-4">
             {socialLinks.instagram && (
                 <Link href={`https://instagram.com/${socialLinks.instagram}`} target="_blank" className="hover:scale-110 transition-transform">
-                    <img src="/socials/instagram.png" className="w-8 h-8 opacity-80 hover:opacity-100" alt="Instagram" />
+                    <img src="/socials/instagram.png" className={iconClass} alt="Instagram" />
                 </Link>
             )}
             {socialLinks.x && (
                 <Link href={`https://x.com/${socialLinks.x}`} target="_blank" className="hover:scale-110 transition-transform">
-                    <img src="/socials/x.png" className="w-8 h-8 opacity-80 hover:opacity-100" alt="X" />
-                </Link>
-            )}
-            {socialLinks.youtube && (
-                <Link href={`https://youtube.com/${socialLinks.youtube}`} target="_blank" className="hover:scale-110 transition-transform">
-                    <img src="/socials/youtube.png" className="w-8 h-8 opacity-80 hover:opacity-100" alt="YouTube" />
+                    <img src="/socials/x.png" className={iconClass} alt="X" />
                 </Link>
             )}
             {socialLinks.whatsapp && (
                 <Link href={`https://wa.me/${socialLinks.whatsapp}`} target="_blank" className="hover:scale-110 transition-transform">
-                    <img src="/socials/whatsapp.png" className="w-8 h-8 opacity-80 hover:opacity-100" alt="WhatsApp" />
-                </Link>
-            )}
-            {socialLinks.reddit && (
-                <Link href={`https://reddit.com/u/${socialLinks.reddit}`} target="_blank" className="hover:scale-110 transition-transform">
-                    <img src="/socials/reddit.png" className="w-8 h-8 opacity-80 hover:opacity-100" alt="Reddit" />
+                    <img src="/socials/whatsapp.png" className={iconClass} alt="WhatsApp" />
                 </Link>
             )}
             {socialLinks.email && (
                 <Link href={`mailto:${socialLinks.email}`} target="_blank" className="hover:scale-110 transition-transform">
-                    <img src="/socials/mail.png" className="w-8 h-8 opacity-80 hover:opacity-100" alt="Email" />
+                    <img src="/socials/mail.png" className={iconClass} alt="Email" />
                 </Link>
             )}
-        </>
+        </div>
     );
 }

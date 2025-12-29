@@ -83,7 +83,12 @@ export default function LandingPage() {
             <span className="text-xl font-bold tracking-tight text-white font-space">Ventra</span>
           </div>
 
-
+          <Button
+            onClick={() => router.push('/onboarding')}
+            className="bg-[#ccfd14] hover:bg-[#b0da0f] text-black rounded-full px-6 py-2 font-bold text-sm transition-all"
+          >
+            Download App
+          </Button>
         </div>
       </nav>
 

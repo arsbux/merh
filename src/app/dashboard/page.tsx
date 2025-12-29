@@ -1,54 +1,29 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import {
-    Plus,
-    Store,
-    ExternalLink,
-    User,
-    Trash2,
-    Type,
-    Youtube,
-    ImageIcon,
-    Link as LinkIcon,
-    Loader2,
-    ChevronRight,
-    LogOut,
-    Edit2,
-    ChevronUp,
-    ChevronDown,
-    Palette,
-    Upload,
-    Camera,
-    Layout,
-    Pipette,
-    Share2,
-    Package,
-    Home,
-    BarChart3,
-    Settings,
-    Banknote,
-    Info,
-    X,
-    ToggleLeft,
-    ToggleRight,
-    PenTool,
-    Copy,
-    Clock,
-    Sparkles,
-    Wrench,
-    ShoppingBag,
-    Download,
-    Smartphone
+    Plus, Store, ExternalLink, User, Trash2, Type, Youtube, ImageIcon,
+    Link as LinkIcon, Loader2, ChevronRight, LogOut, Edit2, ChevronUp,
+    ChevronDown, Palette, Upload, Camera, Layout, Pipette, Share2,
+    Package, Home, BarChart3, ShoppingBag, Settings, Banknote, Info,
+    X, ToggleLeft, ToggleRight, PenTool, Copy, Clock, Sparkles,
+    Wrench, Download, Smartphone, ChevronLeft, Check, Heart, MoreVertical
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
-import { updateStoreProfile, addStoreLink, deleteStoreLink, getStoreByUserId, updateStoreLinks, updateStoreSlug, checkSlugAvailability, addProduct, updateProduct, deleteProduct, toggleProductPublished, getProductsByStoreId } from "@/app/actions";
+import {
+    updateStoreProfile, addStoreLink, deleteStoreLink, getStoreByUserId,
+    updateStoreLinks, updateStoreSlug, checkSlugAvailability, addProduct,
+    updateProduct, deleteProduct, toggleProductPublished, getProductsByStoreId
+} from "@/app/actions";
 import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Sidebar } from "@/components/dashboard/Sidebar";
+import { MobileNav } from "@/components/dashboard/MobileNav";
+import { DashboardHeader } from "@/components/dashboard/Header";
+import { ProductsView } from "@/components/dashboard/views/ProductsView";
+import { SettingsView } from "@/components/dashboard/views/SettingsView";
+import { ToolsView } from "@/components/dashboard/views/ToolsView";
+import { EarningsView } from "@/components/dashboard/views/EarningsView";
 
 export default function DashboardPage() {
     const router = useRouter();
@@ -69,7 +44,6 @@ export default function DashboardPage() {
     const [isCreating, setIsCreating] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
     const [textEditorContent, setTextEditorContent] = useState("");
-    const [textAlignment, setTextAlignment] = useState<'left' | 'center' | 'right'>('left');
 
     const [store, setStore] = useState<any>(null);
     const [profile, setProfile] = useState({
@@ -79,14 +53,11 @@ export default function DashboardPage() {
         bannerUrl: "",
         themeColor: "#000000",
         headerLayout: "MODERN_CARD",
+        storeLayout: "LIST_DETAIL",
         socialLinks: { instagram: "", x: "", youtube: "", facebook: "", reddit: "", whatsapp: "", email: "" }
     });
-    const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
-    const [isHeaderMenuOpen, setIsHeaderMenuOpen] = useState(false);
-    const colorInputRef = useRef<HTMLInputElement>(null);
-    const [links, setLinks] = useState<any[]>([]);
 
-    // Products state
+    const [links, setLinks] = useState<any[]>([]);
     const [activeTab, setActiveTab] = useState<'store' | 'products' | 'tools' | 'settings' | 'earnings'>('store');
     const [products, setProducts] = useState<any[]>([]);
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -94,7 +65,6 @@ export default function DashboardPage() {
     const [uploadingProductImage, setUploadingProductImage] = useState(false);
     const [uploadingProductFile, setUploadingProductFile] = useState(false);
 
-    // Payout state
     const [payoutDetails, setPayoutDetails] = useState({
         provider: "M-Pesa (Kenya)",
         accountName: "",
@@ -104,14 +74,26 @@ export default function DashboardPage() {
     const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
     const [isPWAInstalled, setIsPWAInstalled] = useState(false);
 
-    const [pendingProduct, setPendingProduct] = useState({
+    interface ProductData {
+        name: string;
+        description: string;
+        price: string;
+        type: string;
+        imageUrls: string[];
+        fileUrl: string;
+        buttonText: string;
+        currency: string;
+    }
+
+    const [pendingProduct, setPendingProduct] = useState<ProductData>({
         name: "",
         description: "",
         price: "",
         type: "DIGITAL",
-        imageUrls: [] as string[],
+        imageUrls: [],
         fileUrl: "",
-        buttonText: "Get Started"
+        buttonText: "I want this",
+        currency: "UGX"
     });
 
     useEffect(() => {
@@ -134,18 +116,15 @@ export default function DashboardPage() {
                     bannerUrl: storeData.bannerUrl || "",
                     themeColor: storeData.themeColor || "#000000",
                     headerLayout: storeData.headerLayout || "MODERN_CARD",
+                    storeLayout: storeData.storeLayout || "LIST_DETAIL",
                     socialLinks: {
                         instagram: "", x: "", youtube: "", facebook: "", reddit: "", whatsapp: "", email: "",
                         ...(storeData.socialLinks as any || {})
                     }
                 });
                 setLinks(storeData.links || []);
-
-                // Load products
                 const productData = await getProductsByStoreId(storeData.id);
                 setProducts(productData);
-
-                // Load payout details if they exist in store (using socialLinks or similar for now or just defaults)
                 if (storeData.payoutDetails) {
                     setPayoutDetails(storeData.payoutDetails);
                 }
@@ -161,7 +140,6 @@ export default function DashboardPage() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        // 1. Update Profile
         const profileRes = await updateStoreProfile(user.id, {
             name: profile.name,
             bio: profile.bio,
@@ -169,11 +147,12 @@ export default function DashboardPage() {
             bannerUrl: profile.bannerUrl,
             themeColor: profile.themeColor,
             headerLayout: profile.headerLayout,
+            storeLayout: profile.storeLayout,
             socialLinks: profile.socialLinks,
+            whatsapp: profile.socialLinks.whatsapp,
             payoutDetails: payoutDetails
         });
 
-        // 2. Update Links (content changes)
         const linksRes = await updateStoreLinks(links.map((l, i) => ({
             id: l.id,
             title: l.title,
@@ -196,7 +175,6 @@ export default function DashboardPage() {
     const handleOpenEditModal = (link: any) => {
         if (link.type === 'TEXT') {
             setTextEditorContent(link.url || "");
-            setTextAlignment('left'); // Default for now
         }
         setEditingBlock(link);
     };
@@ -204,7 +182,6 @@ export default function DashboardPage() {
     const handleOpenAddModal = (type: string) => {
         if (type === 'TEXT') {
             setTextEditorContent("");
-            setTextAlignment('left');
         }
         setPendingBlock({
             type,
@@ -222,13 +199,11 @@ export default function DashboardPage() {
         try {
             let finalUrl = pendingBlock.url;
 
-            // Handle Text Content from Rich Editor
             if (pendingBlock.type === 'TEXT') {
                 finalUrl = textEditorContent;
                 pendingBlock.title = textEditorContent.slice(0, 30);
             }
 
-            // If it's an image and there's a file, upload it first
             if (pendingBlock.type === 'IMAGE' && pendingBlock.file) {
                 const supabase = createClient();
                 const { data: { user } } = await supabase.auth.getUser();
@@ -279,7 +254,6 @@ export default function DashboardPage() {
     };
 
     useEffect(() => {
-        // Register service worker
         if (typeof window !== "undefined" && "serviceWorker" in navigator) {
             navigator.serviceWorker.register("/sw.js").catch((err) => {
                 console.error("Service worker registration failed:", err);
@@ -290,16 +264,11 @@ export default function DashboardPage() {
             e.preventDefault();
             setDeferredPrompt(e);
         };
-
         window.addEventListener("beforeinstallprompt", handler);
-
         if (window.matchMedia("(display-mode: standalone)").matches) {
             setIsPWAInstalled(true);
         }
-
-        return () => {
-            window.removeEventListener("beforeinstallprompt", handler);
-        };
+        return () => window.removeEventListener("beforeinstallprompt", handler);
     }, []);
 
     const handlePWAInstall = async () => {
@@ -318,15 +287,6 @@ export default function DashboardPage() {
         router.push("/");
     };
 
-    const execCommand = (command: string, value: string = "") => {
-        document.execCommand(command, false, value);
-    };
-
-    const updateBlockLocally = (id: string, field: string, value: string) => {
-        setLinks(links.map(l => l.id === id ? { ...l, [field]: value } : l));
-        setHasChanges(true);
-    };
-
     const confirmEditBlock = async () => {
         if (!editingBlock) return;
         setSaving(true);
@@ -340,7 +300,7 @@ export default function DashboardPage() {
             }]);
 
             if (res.success) {
-                setLinks(links.map(l => l.id === editingBlock.id ? editingBlock : l));
+                setLinks(links.map(l => l.id === editingBlock.id ? { ...editingBlock, url: finalUrl } : l));
                 setEditingBlock(null);
                 toast.success("Block updated!");
             }
@@ -351,135 +311,28 @@ export default function DashboardPage() {
         }
     };
 
-    const moveBlock = (index: number, direction: 'up' | 'down') => {
-        const newLinks = [...links];
-        const targetIndex = direction === 'up' ? index - 1 : index + 1;
-        if (targetIndex < 0 || targetIndex >= newLinks.length) return;
-
-        [newLinks[index], newLinks[targetIndex]] = [newLinks[targetIndex], newLinks[index]];
-        setLinks(newLinks);
-        setHasChanges(true); // Mark as changed
-    };
-
     const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         try {
             const file = e.target.files?.[0];
             if (!file) return;
-
             setUploadingAvatar(true);
             const supabase = createClient();
-
-            // Get current user for unique path
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("Not authenticated");
 
             const fileExt = file.name.split('.').pop();
             const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-            const filePath = `${fileName}`; // Upload directly to the bucket root
-
-            // Upload the file to the "avatars" bucket
-            const { error: uploadError } = await supabase.storage
-                .from('avatars')
-                .upload(filePath, file, {
-                    upsert: true,
-                    cacheControl: '3600'
-                });
-
+            const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, file, { upsert: true });
             if (uploadError) throw uploadError;
 
-            // Get public URL
-            const { data: { publicUrl } } = supabase.storage
-                .from('avatars')
-                .getPublicUrl(filePath);
-
+            const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
             setProfile({ ...profile, avatarUrl: publicUrl });
             setHasChanges(true);
             toast.success("Profile picture uploaded!");
         } catch (error: any) {
-            console.error("Upload error:", error);
             toast.error("Upload failed: " + (error.message || "Unknown error"));
         } finally {
             setUploadingAvatar(false);
-        }
-    };
-
-    const [uploadingBanner, setUploadingBanner] = useState(false);
-
-    const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        try {
-            const file = e.target.files?.[0];
-            if (!file) return;
-
-            setUploadingBanner(true);
-            const supabase = createClient();
-
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error("Not authenticated");
-
-            const fileExt = file.name.split('.').pop();
-            const fileName = `banner-${user.id}-${Date.now()}.${fileExt}`;
-            const filePath = `${fileName}`;
-
-            const { error: uploadError } = await supabase.storage
-                .from('avatars')
-                .upload(filePath, file, {
-                    upsert: true,
-                    cacheControl: '3600'
-                });
-
-            if (uploadError) throw uploadError;
-
-            const { data: { publicUrl } } = supabase.storage
-                .from('avatars')
-                .getPublicUrl(filePath);
-
-            setProfile({ ...profile, bannerUrl: publicUrl });
-            setHasChanges(true);
-            toast.success("Banner uploaded!");
-        } catch (error: any) {
-            console.error("Upload error:", error);
-            toast.error("Upload failed: " + (error.message || "Unknown error"));
-        } finally {
-            setUploadingBanner(false);
-        }
-    };
-
-    const handleBlockImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, blockId: string) => {
-        try {
-            const file = e.target.files?.[0];
-            if (!file) return;
-
-            setUploadingBlockId(blockId);
-            const supabase = createClient();
-
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error("Not authenticated");
-
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${user.id}-${blockId}-${Date.now()}.${fileExt}`;
-            const filePath = `${fileName}`;
-
-            // Upload the file to the "products" bucket (used for general images)
-            const { error: uploadError } = await supabase.storage
-                .from('products')
-                .upload(filePath, file, {
-                    upsert: true,
-                    cacheControl: '3600'
-                });
-
-            if (uploadError) throw uploadError;
-
-            const { data: { publicUrl } } = supabase.storage
-                .from('products')
-                .getPublicUrl(filePath);
-
-            updateBlockLocally(blockId, 'url', publicUrl);
-            toast.success("Image uploaded!");
-        } catch (error: any) {
-            console.error("Upload error:", error);
-            toast.error("Upload failed: " + (error.message || "Unknown error"));
-        } finally {
-            setUploadingBlockId(null);
         }
     };
 
@@ -492,7 +345,6 @@ export default function DashboardPage() {
         setIsCheckingSlug(true);
         const { available, error } = await checkSlugAvailability(slug, user?.id);
         if (error) {
-            toast.error("Connecting to server...");
             setIsSlugAvailable(null);
         } else {
             setIsSlugAvailable(available);
@@ -512,17 +364,16 @@ export default function DashboardPage() {
         }
     };
 
-    // ==================== PRODUCT HANDLERS ====================
-
     const resetProductForm = () => {
         setPendingProduct({
             name: "",
             description: "",
             price: "",
+            currency: "UGX",
             type: "DIGITAL",
             imageUrls: [],
             fileUrl: "",
-            buttonText: "Get Started"
+            buttonText: "I want this"
         });
         setEditingProduct(null);
     };
@@ -541,71 +392,43 @@ export default function DashboardPage() {
             type: product.type || "DIGITAL",
             imageUrls: product.imageUrls || [],
             fileUrl: product.fileUrl || "",
-            buttonText: product.buttonText || "Get Started"
+            buttonText: product.buttonText || "I want this",
+            currency: product.currency || "UGX"
         });
         setIsProductModalOpen(true);
     };
 
     const handleSaveProduct = async () => {
         if (!store) {
-            toast.error("Store not found. Please refresh or set your handle first.");
+            toast.error("Store not found");
             return;
         }
-
-        if (!pendingProduct.name) {
-            toast.error("Please enter a product name");
+        if (!pendingProduct.name || !pendingProduct.price) {
+            toast.error("Please fill in all required fields");
             return;
         }
-
-        if (!pendingProduct.price) {
-            toast.error("Please enter a price");
-            return;
-        }
-
         setSaving(true);
-
         try {
-            if (editingProduct) {
-                // Update existing product
-                const res = await updateProduct(editingProduct.id, {
-                    name: pendingProduct.name,
-                    description: pendingProduct.description,
-                    price: parseFloat(pendingProduct.price),
-                    type: pendingProduct.type,
-                    imageUrls: pendingProduct.imageUrls,
-                    fileUrl: pendingProduct.fileUrl,
-                    buttonText: pendingProduct.buttonText
-                });
-                if (res.success) {
-                    // Refresh products
-                    const productData = await getProductsByStoreId(store.id);
-                    setProducts(productData);
-                    toast.success("Product updated!");
-                } else {
-                    toast.error(res.error || "Failed to update product");
-                }
+            const productData = {
+                name: pendingProduct.name,
+                description: pendingProduct.description,
+                price: parseFloat(pendingProduct.price),
+                type: pendingProduct.type,
+                imageUrls: pendingProduct.imageUrls,
+                fileUrl: pendingProduct.fileUrl,
+                buttonText: pendingProduct.buttonText,
+                currency: pendingProduct.currency
+            };
+            const res = editingProduct ? await updateProduct(editingProduct.id, productData) : await addProduct(store.id, productData);
+            if (res.success) {
+                const refreshedProducts = await getProductsByStoreId(store.id);
+                setProducts(refreshedProducts);
+                toast.success(editingProduct ? "Product updated!" : "Product added!");
+                setIsProductModalOpen(false);
+                resetProductForm();
             } else {
-                // Add new product
-                const res = await addProduct(store.id, {
-                    name: pendingProduct.name,
-                    description: pendingProduct.description,
-                    price: parseFloat(pendingProduct.price),
-                    type: pendingProduct.type,
-                    imageUrls: pendingProduct.imageUrls,
-                    fileUrl: pendingProduct.fileUrl,
-                    buttonText: pendingProduct.buttonText
-                });
-                if (res.success) {
-                    // Refresh products
-                    const productData = await getProductsByStoreId(store.id);
-                    setProducts(productData);
-                    toast.success("Product added!");
-                } else {
-                    toast.error(res.error || "Failed to add product");
-                }
+                toast.error(res.error || "Failed to save product");
             }
-            setIsProductModalOpen(false);
-            resetProductForm();
         } catch (error: any) {
             toast.error(error.message || "Something went wrong");
         } finally {
@@ -618,8 +441,6 @@ export default function DashboardPage() {
         if (res.success) {
             setProducts(products.filter(p => p.id !== productId));
             toast.success("Product deleted");
-        } else {
-            toast.error("Failed to delete product");
         }
     };
 
@@ -627,39 +448,22 @@ export default function DashboardPage() {
         const res = await toggleProductPublished(productId, !currentStatus);
         if (res.success) {
             setProducts(products.map(p => p.id === productId ? { ...p, isPublished: !currentStatus } : p));
-            toast.success(currentStatus ? "Product unpublished" : "Product published!");
-        } else {
-            toast.error("Failed to update product");
         }
     };
 
     const handleProductImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-
         setUploadingProductImage(true);
         try {
             const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("Not authenticated");
-
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${user.id}-product-${Date.now()}.${fileExt}`;
-
-            const { error: uploadError } = await supabase.storage
-                .from('products')
-                .upload(fileName, file, { upsert: true });
-
+            const fileName = `${user.id}-product-${Date.now()}.${file.name.split('.').pop()}`;
+            const { error: uploadError } = await supabase.storage.from('products').upload(fileName, file, { upsert: true });
             if (uploadError) throw uploadError;
-
-            const { data: { publicUrl } } = supabase.storage
-                .from('products')
-                .getPublicUrl(fileName);
-
-            setPendingProduct({
-                ...pendingProduct,
-                imageUrls: [...pendingProduct.imageUrls, publicUrl]
-            });
+            const { data: { publicUrl } } = supabase.storage.from('products').getPublicUrl(fileName);
+            setPendingProduct({ ...pendingProduct, imageUrls: [publicUrl] }); // Simplified to single image for now
             toast.success("Image uploaded!");
         } catch (error: any) {
             toast.error("Upload failed: " + error.message);
@@ -671,26 +475,15 @@ export default function DashboardPage() {
     const handleProductFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-
         setUploadingProductFile(true);
         try {
             const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("Not authenticated");
-
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${user.id}-file-${Date.now()}.${fileExt}`;
-
-            const { error: uploadError } = await supabase.storage
-                .from('products')
-                .upload(fileName, file, { upsert: true });
-
+            const fileName = `${user.id}-file-${Date.now()}.${file.name.split('.').pop()}`;
+            const { error: uploadError } = await supabase.storage.from('products').upload(fileName, file, { upsert: true });
             if (uploadError) throw uploadError;
-
-            const { data: { publicUrl } } = supabase.storage
-                .from('products')
-                .getPublicUrl(fileName);
-
+            const { data: { publicUrl } } = supabase.storage.from('products').getPublicUrl(fileName);
             setPendingProduct({ ...pendingProduct, fileUrl: publicUrl });
             toast.success("File uploaded!");
         } catch (error: any) {
@@ -698,13 +491,6 @@ export default function DashboardPage() {
         } finally {
             setUploadingProductFile(false);
         }
-    };
-
-    const removeProductImage = (index: number) => {
-        setPendingProduct({
-            ...pendingProduct,
-            imageUrls: pendingProduct.imageUrls.filter((_, i) => i !== index)
-        });
     };
 
     if (loading) {
@@ -715,1420 +501,398 @@ export default function DashboardPage() {
         );
     }
 
-    const bgColor = profile.themeColor === "#000000" ? "#020617" : profile.themeColor;
-    const cardBg = "rgba(15, 23, 42, 0.4)";
-
     return (
-        <div className="min-h-screen bg-gray-50 text-slate-900 selection:bg-black selection:text-white pb-32 font-sans">
+        <div className="min-h-screen bg-gray-50 text-slate-900 selection:bg-black selection:text-white pb-32 font-sans md:pb-0">
+            <DashboardHeader
+                store={store}
+                activeTab={activeTab}
+                setIsEditingSlug={setIsEditingSlug}
+                setActiveTab={setActiveTab}
+            />
+            <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-            {/* Top Header */}
-            <header className="fixed top-0 left-0 right-0 h-16 flex items-center justify-between px-6 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 flex items-center justify-center">
-                        <img src="/ventra-logo.svg" alt="Ventra Logo" className="w-full h-full" />
-                    </div>
-                    <div className="flex flex-col">
-                        <span className="font-bold text-sm tracking-tight capitalize leading-none mb-0.5">{store?.slug || "No Handle"}</span>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Dashboard</span>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className={`font-semibold h-9 px-4 rounded-full text-xs transition-all ${!store?.slug ? 'text-red-500 bg-red-50 hover:bg-red-100' : 'text-slate-600 hover:bg-slate-100 hover:text-black'}`}
-                        onClick={() => {
-                            if (!store?.slug) {
-                                setActiveTab('settings');
-                                setIsEditingSlug(true);
-                                toast.error("Please set your handle first");
-                            } else {
-                                window.open(`/${store.slug}`, '_blank');
-                            }
-                        }}
-                    >
-                        View Live <ExternalLink className="w-3 h-3 ml-2 opacity-50" />
-                    </Button>
-
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-9 w-9 text-slate-500 hover:text-black hover:bg-slate-100 rounded-full transition-all"
-                        onClick={() => {
-                            if (!store?.slug) {
-                                setActiveTab('settings');
-                                setIsEditingSlug(true);
-                                toast.error("Please set your handle first");
-                                return;
-                            }
-                            const url = `${window.location.origin}/${store.slug}`;
-                            if (navigator.share) {
-                                navigator.share({
-                                    title: store.name || "My Store",
-                                    url: url
-                                }).catch(() => { });
-                            } else {
-                                navigator.clipboard.writeText(url);
-                                toast.success("Link copied to clipboard!");
-                            }
-                        }}
-                    >
-                        <Share2 className="w-4 h-4" />
-                    </Button>
-
-
-                </div>
-            </header>
-
-            {/* Dashboard Canvas */}
-            <main className={`transition-all duration-500 md:pl-20 ${activeTab === 'store' ? 'w-full pb-0' : 'max-w-[480px] mx-auto pt-24 px-6 pb-32'}`}>
-
-                {/* SETTINGS TAB */}
+            <main className={`transition-all duration-500 md:pl-20 ${activeTab === 'store' ? 'w-full pb-0' : 'w-full max-w-[480px] md:max-w-none mx-auto pt-24 px-6 pb-32'}`}>
                 {activeTab === 'settings' && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 space-y-6">
-                        <h2 className="text-2xl font-black tracking-tight text-slate-900">Settings</h2>
-
-                        {/* Account Card */}
-                        <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
-                            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-4">Account</h3>
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center">
-                                    <User className="w-6 h-6 text-slate-400" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-base font-bold text-slate-900 truncate">{user?.email}</p>
-                                    <p className="text-xs text-slate-400 font-medium">Synced with Supabase</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Store Handle Card */}
-                        <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Store Handle</h3>
-                                {!isEditingSlug && (
-                                    <button onClick={() => setIsEditingSlug(true)} className="text-[10px] font-bold text-slate-900 hover:text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full transition-colors">Change</button>
-                                )}
-                            </div>
-
-                            {isEditingSlug || !store?.slug ? (
-                                <div className="space-y-3">
-                                    <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">@</span>
-                                        <input
-                                            className={`w-full bg-slate-50 border-none rounded-xl h-12 pl-8 pr-4 text-base font-bold focus:ring-2 transition-all text-slate-900 ${isSlugAvailable === false ? 'ring-2 ring-red-500/20 text-red-600' : 'focus:ring-sky-500/20'}`}
-                                            placeholder="handle"
-                                            value={newSlug}
-                                            onChange={(e) => handleSlugCheck(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
-                                        />
-                                        {isCheckingSlug ? (
-                                            <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-slate-400" />
-                                        ) : (
-                                            isSlugAvailable !== null ? (
-                                                <span className={`absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-bold uppercase ${isSlugAvailable ? 'text-emerald-500' : 'text-red-500'}`}>
-                                                    {isSlugAvailable ? 'Available' : 'Taken'}
-                                                </span>
-                                            ) : (
-                                                newSlug.length >= 3 && (
-                                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-bold uppercase text-slate-400">
-                                                        Checking...
-                                                    </span>
-                                                )
-                                            )
-                                        )}
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <Button
-                                            disabled={!isSlugAvailable || isCheckingSlug || newSlug === store?.slug}
-                                            onClick={handleSaveSlug}
-                                            className="flex-1 h-12 rounded-xl bg-black text-white font-bold text-sm shadow-xl shadow-black/10 hover:bg-slate-800 active:scale-95 transition-all"
-                                        >
-                                            Save Handle
-                                        </Button>
-                                        <Button
-                                            onClick={() => { setIsEditingSlug(false); setNewSlug(store?.slug || ""); }}
-                                            className="h-12 w-12 rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200"
-                                        >
-                                            <X className="w-5 h-5" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div
-                                    className="bg-slate-50 rounded-xl p-4 flex items-center justify-between group cursor-pointer active:scale-[0.98] transition-all"
-                                    onClick={() => {
-                                        navigator.clipboard.writeText(`ventra.io/${store?.slug}`);
-                                        toast.success("Link copied!");
-                                    }}
-                                >
-                                    <p className="text-lg font-black text-slate-900 flex items-center gap-0.5">
-                                        <span className="text-slate-400 font-medium">@</span>{store?.slug}
-                                    </p>
-                                    <Copy className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Mobile App Card */}
-                        {!isPWAInstalled && deferredPrompt && (
-                            <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-2xl bg-sky-50 flex items-center justify-center">
-                                        <Smartphone className="w-6 h-6 text-sky-600" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className="text-base font-black text-slate-900 tracking-tight">Ventra for Mobile</h3>
-                                        <p className="text-xs text-slate-400 font-medium leading-tight">Install for faster access and offline support.</p>
-                                    </div>
-                                </div>
-                                <Button
-                                    onClick={handlePWAInstall}
-                                    className="w-full h-12 rounded-xl bg-sky-500 text-white font-bold text-sm shadow-lg shadow-sky-500/20 hover:bg-sky-400 active:scale-95 transition-all flex items-center justify-center gap-2"
-                                >
-                                    <Download className="w-4 h-4" />
-                                    Install App
-                                </Button>
-                            </div>
-                        )}
-
-                        {/* Sign Out Button */}
-                        <Button
-                            variant="ghost"
-                            className="w-full justify-center h-14 rounded-3xl text-red-500 hover:text-red-600 hover:bg-red-50 transition-all border border-red-100 bg-white shadow-sm hover:shadow-md hover:border-red-200"
-                            onClick={handleLogout}
-                        >
-                            <LogOut className="w-5 h-5 mr-3" />
-                            <span className="font-bold text-base">Log out</span>
-                        </Button>
-
-                        <p className="text-center text-xs text-slate-300 font-bold pt-6">
-                            Ventra App v1.0.0
-                        </p>
-                    </div>
+                    <SettingsView
+                        user={user} store={store} profile={profile} setProfile={setProfile}
+                        setHasChanges={setHasChanges}
+                        isEditingSlug={isEditingSlug}
+                        setIsEditingSlug={setIsEditingSlug} newSlug={newSlug}
+                        setNewSlug={setNewSlug} isSlugAvailable={isSlugAvailable}
+                        isCheckingSlug={isCheckingSlug} handleSlugCheck={handleSlugCheck}
+                        handleSaveSlug={handleSaveSlug} isPWAInstalled={isPWAInstalled}
+                        deferredPrompt={deferredPrompt} handlePWAInstall={handlePWAInstall}
+                        handleLogout={handleLogout}
+                    />
                 )}
 
-                {/* PRODUCTS TAB */}
                 {activeTab === 'products' && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4">
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-black tracking-tight text-slate-900">Products</h2>
-                            <Button
-                                onClick={handleOpenAddProduct}
-                                className="bg-black hover:bg-slate-800 text-white font-bold text-sm h-10 px-4 rounded-lg shadow-md hover:shadow-lg transition-all"
-                            >
-                                <Plus className="w-4 h-4 mr-2" /> Add Product
-                            </Button>
-                        </div>
-
-                        {products.length === 0 ? (
-                            <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-slate-200">
-                                <Package className="w-12 h-12 mx-auto mb-4 text-slate-300" />
-                                <p className="text-lg font-bold text-slate-900">No products yet</p>
-                                <p className="text-sm text-slate-500 mt-1">Add your first product to start selling</p>
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                {products.map((product) => (
-                                    <div
-                                        key={product.id}
-                                        className="group relative bg-white rounded-3xl border border-slate-100 shadow-sm p-5 transition-all hover:shadow-lg hover:border-slate-200"
-                                    >
-                                        <div className="flex gap-5">
-                                            {/* Product Image */}
-                                            <div className="w-24 h-24 rounded-2xl bg-slate-100 overflow-hidden flex-shrink-0 border border-slate-100 shadow-sm relative group-hover:scale-[1.02] transition-transform">
-                                                {product.imageUrls?.[0] ? (
-                                                    <img src={product.imageUrls[0]} alt="" className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center">
-                                                        <Package className="w-8 h-8 text-slate-300" />
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            {/* Product Info */}
-                                            <div className="flex-1 min-w-0 py-1">
-                                                <div className="flex items-start justify-between gap-4 mb-1.5">
-                                                    <h3 className="font-black text-slate-900 line-clamp-2 text-base leading-tight tracking-tight">{product.name}</h3>
-                                                    <div className="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 flex-shrink-0">
-                                                        <span className="text-slate-900 font-black text-sm whitespace-nowrap">
-                                                            ${parseFloat(product.price || 0).toFixed(2)}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <p className="text-sm text-slate-500 font-medium line-clamp-2 leading-relaxed opacity-80">{product.description || "No description provided."}</p>
-                                            </div>
-                                        </div>
-
-                                        {/* Action Buttons - Full Width Footer */}
-                                        <div className="flex items-center justify-between mt-5 w-full">
-                                            {/* Share Button - Large Pill Style */}
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    const identifier = product.slug || product.id;
-                                                    const url = `${window.location.origin}/${store?.slug}/${identifier}`;
-                                                    navigator.clipboard.writeText(url);
-                                                    toast.success("Product link copied!");
-                                                }}
-                                                className="flex items-center gap-2.5 h-10 px-6 rounded-full font-bold text-sm bg-slate-50 text-slate-900 border border-slate-200 hover:bg-white hover:border-slate-300 hover:shadow-sm transition-all"
-                                            >
-                                                <Share2 className="w-4 h-4" />
-                                                <span>Copy Link</span>
-                                            </button>
-
-                                            <div className="flex items-center gap-5 pr-2">
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); handleOpenEditProduct(product); }}
-                                                    className="font-bold text-sm text-slate-400 hover:text-slate-900 transition-colors"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); handleDeleteProduct(product.id); }}
-                                                    className="font-bold text-sm text-slate-400 hover:text-red-500 transition-colors"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                    <ProductsView
+                        products={products} handleOpenAddProduct={handleOpenAddProduct}
+                        handleOpenEditProduct={handleOpenEditProduct}
+                        handleDeleteProduct={handleDeleteProduct}
+                        handleTogglePublish={handleTogglePublish}
+                        store={store}
+                    />
                 )}
 
-                {/* STORE TAB (Exact Preview Mode) */}
                 {activeTab === 'store' && (
-                    <div className="min-h-screen w-full flex flex-col items-center pt-20 pb-32 px-4 transition-colors duration-500"
-                        style={{
-                            backgroundColor: profile.themeColor === "#000000" ? "#020617" : (profile.themeColor || "#000000"),
-                            color: "#ffffff"
-                        }}
-                    >
-                        {/* Theme Constants Helper */}
-                        {(() => {
-                            const themeColor = profile.themeColor || "#000000";
-                            const isDark = themeColor === "#000000";
-                            const cardBg = "rgba(15, 23, 42, 0.4)";
-                            const buttonBg = "#ffffff";
-                            const buttonText = isDark ? "#020617" : themeColor;
-
-                            return (
-                                <>
-                                    {/* Edit Hint */}
-                                    <div className="fixed top-28 right-4 z-40">
-                                        <div className="bg-black/80 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1.5 rounded-full border border-white/20 shadow-xl flex items-center gap-2">
-                                            <PenTool className="w-3 h-3" />
-                                            Tap items to edit
-                                        </div>
-                                    </div>
-
-                                    {/* Profile Header Preview */}
-                                    <div
-                                        onClick={() => setIsEditingProfile(true)}
-                                        className="w-full max-w-[400px] cursor-pointer relative group"
-                                    >
-                                        <div className="absolute inset-0 z-20 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-3xl backdrop-blur-[2px]">
-                                            <span className="font-bold text-white bg-white/20 px-4 py-2 rounded-full border border-white/30 backdrop-blur-md">Edit Profile</span>
-                                        </div>
-
-                                        {(() => {
-                                            const layout = profile.headerLayout || 'MODERN_CARD';
-                                            const bannerUrl = profile.bannerUrl;
-
-                                            if (layout === 'PROFILE_BANNER') {
-                                                return (
-                                                    <div className="mb-10 text-center relative pointer-events-none">
-                                                        <div className="w-full h-40 rounded-2xl overflow-hidden border border-white/10 shadow-xl mb-[-50px]">
-                                                            {bannerUrl ? <img src={bannerUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-white/5" />}
-                                                        </div>
-                                                        <div className={`w-24 h-24 rounded-full mx-auto relative z-10 overflow-hidden border-4 shadow-2xl ${isDark ? 'bg-gray-800 border-[#020617]' : 'bg-white border-' + themeColor}`}>
-                                                            {profile.avatarUrl ? <img src={profile.avatarUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-[#1e293b]"><User className="w-10 h-10 opacity-20" /></div>}
-                                                        </div>
-                                                        <div className="mt-4">
-                                                            <h1 className="text-3xl font-black mb-1 tracking-tight">{profile.name || "Your Name"}</h1>
-                                                            <p className="text-sm font-medium opacity-70 max-w-[300px] mx-auto leading-relaxed">{profile.bio || "Add a bio..."}</p>
-                                                            <div className="flex gap-4 justify-center mt-6 flex-wrap"><SocialIconPreview socialLinks={profile.socialLinks} /></div>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            }
-                                            if (layout === 'MINIMAL_TOP') {
-                                                return (
-                                                    <div className="mb-12 flex flex-col items-center text-center pointer-events-none">
-                                                        <div className={`w-20 h-20 rounded-full mb-6 overflow-hidden border-2 shadow-xl ${isDark ? 'bg-gray-800 border-white/5' : 'bg-white/20 border-white/20'}`}>
-                                                            {profile.avatarUrl ? <img src={profile.avatarUrl} className="w-full h-full object-cover" /> : <User className="w-10 h-10 opacity-20 mx-auto mt-5" />}
-                                                        </div>
-                                                        <h1 className="text-4xl font-black mb-3 tracking-tighter">{profile.name || "Your Name"}</h1>
-                                                        <p className="text-base font-medium opacity-60 max-w-[320px] leading-relaxed mb-6">{profile.bio || "Add a bio..."}</p>
-                                                        <div className="flex gap-6 justify-center flex-wrap"><SocialIconPreview socialLinks={profile.socialLinks} /></div>
-                                                    </div>
-                                                );
-                                            }
-                                            if (layout === 'FULL_HERO') {
-                                                return (
-                                                    <div className="mb-10 overflow-hidden rounded-3xl border border-white/10 shadow-2xl relative aspect-[4/5] flex flex-col justify-end p-8 pointer-events-none">
-                                                        {bannerUrl && (
-                                                            <div className="absolute inset-0 z-0">
-                                                                <img src={bannerUrl} className="w-full h-full object-cover" />
-                                                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-                                                            </div>
-                                                        )}
-                                                        <div className="relative z-10 text-left">
-                                                            <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-white/20 shadow-xl mb-4">
-                                                                {profile.avatarUrl ? <img src={profile.avatarUrl} className="w-full h-full object-cover" /> : <User className="w-8 h-8 opacity-20 mx-auto mt-4" />}
-                                                            </div>
-                                                            <h1 className="text-4xl font-black text-white mb-2 leading-none">{profile.name || "Your Name"}</h1>
-                                                            <p className="text-sm font-medium text-white/70 max-w-[280px] leading-relaxed mb-6">{profile.bio || "Add a bio..."}</p>
-                                                            <div className="flex gap-4 flex-wrap"><SocialIconPreview socialLinks={profile.socialLinks} /></div>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            }
-                                            return (
-                                                <div className="text-center mb-10 p-8 rounded-2xl border border-white/10 shadow-2xl backdrop-blur-md pointer-events-none" style={{ backgroundColor: cardBg }}>
-                                                    <div className={`w-28 h-28 rounded-full mx-auto mb-6 overflow-hidden border-2 shadow-2xl ${isDark ? 'bg-gray-800 border-white/5' : 'bg-white/20 border-white/20'}`}>
-                                                        {profile.avatarUrl ? <img src={profile.avatarUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><User className="w-12 h-12 opacity-20" /></div>}
-                                                    </div>
-                                                    <h1 className="text-3xl font-black mb-2 tracking-tight">{profile.name || "Your Name"}</h1>
-                                                    <p className="text-sm font-medium leading-relaxed max-w-[280px] mx-auto opacity-70">{profile.bio || "Add a bio..."}</p>
-                                                    <div className="flex gap-5 justify-center mt-8 px-4 flex-wrap"><SocialIconPreview socialLinks={profile.socialLinks} /></div>
-                                                </div>
-                                            );
-                                        })()}
-                                    </div>
-
-                                    {/* Content Blocks Preview */}
-                                    <div className="w-full max-w-[400px] space-y-4">
-                                        {links.length === 0 && (
-                                            <div className="text-center py-24 rounded-2xl border-2 border-dashed border-white/20" style={{ backgroundColor: cardBg }}>
-                                                <p className="text-white/60 text-sm font-medium italic">Your canvas is empty</p>
-                                                <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 mt-2">Add your first block below</p>
-                                            </div>
-                                        )}
-                                        {links.map((block: any) => (
-                                            <div
-                                                key={block.id}
-                                                onClick={() => handleOpenEditModal(block)}
-                                                className="relative group cursor-pointer"
-                                            >
-                                                <div className="absolute inset-0 z-20 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl backdrop-blur-[2px]">
-                                                    <span className="font-bold text-white bg-white/20 px-3 py-1 text-xs rounded-full border border-white/30 backdrop-blur-md">Edit Block</span>
-                                                </div>
-
-                                                <div className="pointer-events-none">
-                                                    {block.type === 'HEADING' && (
-                                                        <h3 className="text-sm font-black uppercase tracking-[0.2em] text-center pt-8 pb-2 opacity-40">{block.title}</h3>
-                                                    )}
-                                                    {block.type === 'TEXT' && (
-                                                        <div className="rounded-xl p-8 shadow-lg backdrop-blur-sm border border-white/10" style={{ backgroundColor: cardBg }}>
-                                                            {block.createdAt && <span className="block text-[9px] font-black uppercase tracking-[0.2em] opacity-30 mb-4">{new Date(block.createdAt).toLocaleDateString()}</span>}
-                                                            <div className="text-sm font-medium leading-relaxed opacity-90 whitespace-pre-wrap">{block.url}</div>
-                                                        </div>
-                                                    )}
-                                                    {block.type === 'IMAGE' && (
-                                                        <div className={`rounded-xl overflow-hidden shadow-xl backdrop-blur-sm border border-white/10`} style={{ backgroundColor: cardBg }}>
-                                                            {block.url ? <img src={block.url} className="w-full h-auto block" /> : <div className="w-full aspect-square flex items-center justify-center bg-white/5"><ImageIcon className="w-12 h-12 opacity-10" /></div>}
-                                                            {block.title && <div className="p-5 text-center border-t border-white/5" style={{ backgroundColor: cardBg }}><p className="text-sm font-bold opacity-90">{block.title}</p></div>}
-                                                        </div>
-                                                    )}
-                                                    {block.type === 'YOUTUBE' && (
-                                                        <div className="rounded-xl overflow-hidden shadow-2xl relative aspect-video bg-black border border-white/10 flex items-center justify-center">
-                                                            <Youtube className="w-12 h-12 text-white opacity-50" />
-                                                        </div>
-                                                    )}
-                                                    {(block.type === 'URL' || !block.type) && (
-                                                        <div className="flex flex-col gap-2">
-                                                            <div className={`block w-full rounded-lg py-6 text-center text-lg font-bold shadow-xl border border-white/10`} style={{ backgroundColor: buttonBg, color: buttonText }}>
-                                                                {block.title}
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        ))}
-
-                                        {/* Products Preview (Read-Only) */}
-                                        {products.length > 0 && (
-                                            <div className="mt-8 pt-4 border-t border-white/10">
-                                                <h2 className="text-lg font-black tracking-tight opacity-80 px-1 mb-4 text-center">Products</h2>
-                                                <div className="grid grid-cols-1 gap-4 opacity-80 hover:opacity-100 transition-opacity">
-                                                    {products.map((product: any) => (
-                                                        <div key={product.id} className="rounded-xl overflow-hidden shadow-xl backdrop-blur-md border border-white/10 flex gap-4 p-4" style={{ backgroundColor: cardBg }}>
-                                                            {product.imageUrls?.[0] && <img src={product.imageUrls[0]} className="w-16 h-16 rounded-lg object-cover" />}
-                                                            <div className="flex-1 min-w-0">
-                                                                <h3 className="font-bold text-sm line-clamp-2 leading-tight">{product.name}</h3>
-                                                                <p className="text-xs opacity-60 mt-1">${parseFloat(product.price || 0).toFixed(2)}</p>
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </>
-                            );
-                        })()}
-                    </div>
-                )}
-
-                {/* TOOLS TAB */}
-                {activeTab === 'tools' && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 space-y-6">
-                        <div className="mb-8">
-                            <h2 className="text-2xl font-black tracking-tight text-slate-900 mb-1">Tools</h2>
-                            <p className="text-sm text-slate-500 font-medium opacity-80">Powerful add-ons to supercharge your sales.</p>
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-4">
-                            {/* Feature Card: Direct Checkout */}
-                            <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm group hover:shadow-md transition-all">
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className="w-12 h-12 rounded-2xl bg-sky-50 flex items-center justify-center">
-                                        <ShoppingBag className="w-6 h-6 text-sky-600" />
-                                    </div>
-                                    <span className="bg-sky-50 text-sky-600 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">Active</span>
-                                </div>
-                                <h3 className="text-lg font-black text-slate-900 mb-1">One-Click Checkout</h3>
-                                <p className="text-sm text-slate-500 leading-relaxed mb-6 font-medium">Allow customers to buy directly without leaving your store. Supports Apple Pay & Google Pay.</p>
-                                <button className="w-full py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-400 cursor-not-allowed">Configured</button>
-                            </div>
-
-                            {/* Feature Card: Analytics */}
-                            <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm group hover:shadow-md transition-all">
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">
-                                        <ExternalLink className="w-6 h-6 text-indigo-600" />
-                                    </div>
-                                    <span className="bg-slate-100 text-slate-400 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">Coming Soon</span>
-                                </div>
-                                <h3 className="text-lg font-black text-slate-900 mb-1">Analytics Pixel</h3>
-                                <p className="text-sm text-slate-500 leading-relaxed mb-6 font-medium">Track your conversion rates and see where your customers are coming from in real-time.</p>
-                                <button className="w-full py-3 rounded-xl bg-slate-50 text-slate-400 text-sm font-bold opacity-60">Notify Me</button>
-                            </div>
-
-                            {/* Feature Card: Email Capture */}
-                            <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm group hover:shadow-md transition-all">
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center">
-                                        <User className="w-6 h-6 text-amber-600" />
-                                    </div>
-                                    <span className="bg-slate-100 text-slate-400 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">Coming Soon</span>
-                                </div>
-                                <h3 className="text-lg font-black text-slate-900 mb-1">Fan List Builder</h3>
-                                <p className="text-sm text-slate-500 leading-relaxed mb-6 font-medium">Capture emails and build your audience directly from your storefront.</p>
-                                <button className="w-full py-3 rounded-xl bg-slate-50 text-slate-400 text-sm font-bold opacity-60">Notify Me</button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* EARNINGS TAB */}
-                {activeTab === 'earnings' && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 space-y-6">
-                        <div>
-                            <h2 className="text-2xl font-black tracking-tight text-slate-900 mb-1">Earnings</h2>
-                            <p className="text-sm text-slate-500 font-medium">Manage your payouts and view history.</p>
-                        </div>
-
-                        {/* Balance Card */}
-                        <div className="bg-[#020617] rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden border border-white/5">
-                            <div className="absolute top-0 right-0 p-32 bg-sky-500/10 rounded-full blur-[80px] -mr-16 -mt-16 pointer-events-none" />
-                            <div className="relative z-10">
-                                <p className="text-slate-500 font-black text-[10px] uppercase tracking-[0.2em] mb-3">Total Volume</p>
-                                <h3 className="text-5xl font-black tracking-tighter mb-8">$0.00</h3>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-white/5 backdrop-blur-md rounded-2xl px-4 py-4 border border-white/5">
-                                        <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest mb-1.5">Last Payout</p>
-                                        <p className="font-bold text-lg text-white/90">$0.00</p>
-                                    </div>
-                                    <div className="bg-white/5 backdrop-blur-md rounded-2xl px-4 py-4 border border-white/5">
-                                        <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest mb-1.5">Pending</p>
-                                        <p className="font-bold text-lg text-white/90">$0.00</p>
-                                    </div>
-                                </div>
+                    <div className="min-h-screen w-full flex flex-col items-center pt-20 pb-32 px-4 bg-white text-black transition-colors duration-500">
+                        {/* Edit Hint */}
+                        <div className="fixed top-28 right-4 z-40">
+                            <div className="bg-black/80 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1.5 rounded-full border border-white/20 shadow-xl flex items-center gap-2">
+                                <PenTool className="w-3 h-3" /> Tap items to edit
                             </div>
                         </div>
 
-                        {/* Payout Settings Card */}
-                        <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm space-y-4">
-                            <div className="flex items-center gap-3 mb-1">
-                                <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center">
-                                    <Banknote className="w-5 h-5 text-emerald-600" />
-                                </div>
-                                <div>
-                                    <h3 className="font-black text-lg text-slate-900 tracking-tight">Payout Details</h3>
-                                    <p className="text-sm text-slate-400 font-medium">Configure where you receive your earnings.</p>
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                <div className="space-y-1.5">
-                                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Bank / Mobile Money Provider</label>
-                                    <select
-                                        value={payoutDetails.provider}
-                                        onChange={(e) => setPayoutDetails({ ...payoutDetails, provider: e.target.value })}
-                                        className="w-full bg-slate-50 border-none rounded-xl h-12 px-4 font-bold text-sm focus:ring-2 focus:ring-emerald-500/20 transition-all text-slate-900 hover:bg-slate-100 appearance-none"
-                                    >
-                                        <option>M-Pesa (Kenya)</option>
-                                        <option>Airtel Money</option>
-                                        <option>Bank Transfer (Local)</option>
-                                        <option>PayPal</option>
-                                    </select>
-                                </div>
-
-                                <div className="space-y-1.5">
-                                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Account Name</label>
-                                    <input
-                                        className="w-full bg-slate-50 border-none rounded-xl h-12 px-4 font-bold text-sm focus:ring-2 focus:ring-emerald-500/20 transition-all text-slate-900 placeholder:text-slate-400 hover:bg-slate-100"
-                                        placeholder="e.g. Keith Katale"
-                                        value={payoutDetails.accountName}
-                                        onChange={(e) => setPayoutDetails({ ...payoutDetails, accountName: e.target.value })}
-                                    />
-                                </div>
-
-                                <div className="space-y-1.5">
-                                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Phone / Account Number</label>
-                                    <input
-                                        className="w-full bg-slate-50 border-none rounded-xl h-12 px-4 font-bold text-sm focus:ring-2 focus:ring-emerald-500/20 transition-all text-slate-900 placeholder:text-slate-400 hover:bg-slate-100"
-                                        placeholder="e.g. 0712345678"
-                                        value={payoutDetails.accountNumber}
-                                        onChange={(e) => setPayoutDetails({ ...payoutDetails, accountNumber: e.target.value })}
-                                    />
-                                </div>
-                            </div>
-
-                            <Button
-                                onClick={async () => {
-                                    setSavingPayout(true);
-                                    const { data: { user } } = await createClient().auth.getUser();
-                                    if (user) {
-                                        const res = await updateStoreProfile(user.id, { payoutDetails });
-                                        if (res.success) {
-                                            toast.success("Payout details saved!");
-                                            setHasChanges(false);
-                                        } else {
-                                            toast.error("Failed to save payout details");
-                                        }
-                                    }
-                                    setSavingPayout(false);
-                                }}
-                                disabled={savingPayout}
-                                className="w-full h-12 rounded-xl bg-black text-white font-bold hover:bg-slate-800 shadow-lg shadow-black/10 transition-all"
-                            >
-                                {savingPayout ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Payout Details"}
-                            </Button>
-
-                            <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 flex gap-2.5 underline-offset-4">
-                                <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-                                <p className="text-xs text-blue-700 font-medium leading-relaxed">
-                                    <strong>Automatic Withdrawals:</strong> For simplicity, payments are automatically split. Your share is sent directly to this account immediately after each sale, minus the platform fee. No manual withdrawal needed!
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Recent Transactions Placeholder */}
-                        <div>
-                            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3 px-1">Recent Transactions</h3>
-                            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-                                <div className="p-10 text-center">
-                                    <div className="w-14 h-14 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <Clock className="w-6 h-6 text-slate-300" />
-                                    </div>
-                                    <p className="text-base font-bold text-slate-900">No activity yet</p>
-                                    <p className="text-sm text-slate-400 mt-1 font-medium">Your sales history will appear here.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-            </main >
-
-            {/* Floating Tool Bar */}
-            < div className="fixed bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-4 z-50 px-4 w-full max-w-[450px]" >
-                <div className="flex-1">
-                    {hasChanges && (
-                        <Button
-                            onClick={handleSave}
-                            disabled={saving}
-                            className="w-full h-14 rounded-full bg-black text-white font-bold text-lg shadow-xl shadow-black/20 hover:bg-slate-800 hover:scale-[1.02] active:scale-95 transition-all animate-in fade-in slide-in-from-bottom-4 duration-500"
+                        {/* Store Header Preview */}
+                        <div
+                            onClick={() => setIsEditingProfile(true)}
+                            className="w-full max-w-[480px] cursor-pointer relative group flex items-start gap-4 mb-10 pt-12"
                         >
-                            {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : "Publish Changes"}
-                        </Button>
-                    )}
-                </div>
+                            <div className="absolute inset-0 z-30 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-3xl backdrop-blur-[1px]">
+                                <span className="font-bold text-black bg-white/80 px-4 py-2 rounded-full border border-black/10 shadow-sm text-xs">Edit Profile</span>
+                            </div>
 
-                <div className="relative group/plus">
-                    <Button
-                        onClick={() => {
-                            if (isColorPickerOpen || isHeaderMenuOpen) {
-                                setIsColorPickerOpen(false);
-                                setIsHeaderMenuOpen(false);
-                            } else {
-                                setIsAddMenuOpen(!isAddMenuOpen);
-                            }
-                        }}
-                        className={`h-14 w-14 rounded-full font-black shadow-xl transition-all border ${isAddMenuOpen ? 'bg-white text-black border-slate-200 rotate-45' : 'bg-black text-white border-transparent hover:scale-110 active:scale-90'}`}
-                    >
-                        <Plus className="w-6 h-6" strokeWidth={3} />
-                    </Button>
-
-                    {/* Popover Menu */}
-                    {isAddMenuOpen && (
-                        <div className="absolute bottom-20 right-0 w-72 bg-white rounded-2xl p-2 shadow-2xl border border-slate-100 animate-in fade-in slide-in-from-bottom-8 overflow-hidden z-50 ring-1 ring-black/5">
-                            {!isColorPickerOpen && !isHeaderMenuOpen ? (
-                                <div className="grid grid-cols-1 gap-0.5">
-                                    <button onClick={() => handleOpenAddModal('TEXT')} className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 text-left group transition-colors">
-                                        <div className="w-10 h-10 rounded-full bg-sky-50 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all">
-                                            <Type className="w-5 h-5 text-sky-500" />
-                                        </div>
-                                        <span className="font-bold text-sm text-slate-700 group-hover:text-slate-900">Add Text</span>
-                                    </button>
-                                    <button onClick={() => handleOpenAddModal('YOUTUBE')} className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 text-left group transition-colors">
-                                        <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all">
-                                            <Youtube className="w-5 h-5 text-red-500" />
-                                        </div>
-                                        <span className="font-bold text-sm text-slate-700 group-hover:text-slate-900">Video URL</span>
-                                    </button>
-                                    <button onClick={() => handleOpenAddModal('URL')} className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 text-left group transition-colors">
-                                        <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all">
-                                            <LinkIcon className="w-5 h-5 text-emerald-500" />
-                                        </div>
-                                        <span className="font-bold text-sm text-slate-700 group-hover:text-slate-900">Button Link</span>
-                                    </button>
-                                    <button onClick={() => handleOpenAddModal('IMAGE')} className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 text-left group transition-colors">
-                                        <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all">
-                                            <ImageIcon className="w-5 h-5 text-purple-500" />
-                                        </div>
-                                        <span className="font-bold text-sm text-slate-700 group-hover:text-slate-900">Photo</span>
-                                    </button>
-                                    <div className="h-px bg-slate-100 my-1" />
-                                    <button onClick={() => setIsColorPickerOpen(true)} className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 text-left group transition-colors">
-                                        <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all">
-                                            <Palette className="w-5 h-5 text-slate-500" />
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className="font-bold text-sm text-slate-700 group-hover:text-slate-900">Theme</span>
-                                            <span className="text-[10px] text-slate-400 font-bold uppercase group-hover:text-slate-500">{profile.themeColor}</span>
-                                        </div>
-                                    </button>
-                                    <button onClick={() => setIsHeaderMenuOpen(true)} className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 text-left group transition-colors">
-                                        <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all">
-                                            <Layout className="w-5 h-5 text-amber-500" />
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className="font-bold text-sm text-slate-700 group-hover:text-slate-900">Header Style</span>
-                                            <span className="text-[10px] text-slate-400 font-bold uppercase group-hover:text-slate-500">Change Layout</span>
-                                        </div>
-                                    </button>
-                                </div>
-                            ) : isColorPickerOpen ? (
-                                <div className="space-y-4 animate-in slide-in-from-right-4 duration-300 p-2">
-                                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Select Theme</span>
-                                        <button onClick={() => setIsColorPickerOpen(false)} className="text-[10px] font-bold text-slate-900 hover:underline">Back</button>
-                                    </div>
-                                    <div className="grid grid-cols-4 gap-2">
-                                        {["#000000", "#1e293b", "#0c4a6e", "#1e1b4b", "#4c1d95", "#701a75", "#831843", "#450a0a"].map((color) => (
-                                            <button
-                                                key={color}
-                                                onClick={() => {
-                                                    setProfile({ ...profile, themeColor: color });
-                                                    setHasChanges(true);
-                                                }}
-                                                className={`w-full aspect-square rounded-full border-2 transition-all shadow-sm ${profile.themeColor === color ? 'border-sky-500 scale-110 shadow-md' : 'border-transparent hover:scale-105'}`}
-                                                style={{ backgroundColor: color }}
-                                            />
-                                        ))}
-                                    </div>
-                                    <button
-                                        onClick={() => colorInputRef.current?.click()}
-                                        className="w-full h-10 rounded-lg bg-slate-50 hover:bg-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-colors"
-                                    >
-                                        Custom Color
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="space-y-4 animate-in slide-in-from-right-4 duration-300 p-2">
-                                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Header Design</span>
-                                        <button onClick={() => setIsHeaderMenuOpen(false)} className="text-[10px] font-bold text-slate-900 hover:underline">Back</button>
-                                    </div>
-                                    <div className="grid grid-cols-1 gap-2 max-h-[240px] overflow-y-auto pr-1">
-                                        {[
-                                            { id: 'MODERN_CARD', label: 'Classic Card', desc: 'Centered profile card' },
-                                            { id: 'PROFILE_BANNER', label: 'Banner Overlay', desc: 'Large banner with avatar' },
-                                            { id: 'MINIMAL_TOP', label: 'Minimal', desc: 'Clean top alignment' },
-                                            { id: 'FULL_HERO', label: 'Full Hero', desc: 'Cinematic background' }
-                                        ].map((layout) => (
-                                            <button
-                                                key={layout.id}
-                                                onClick={() => {
-                                                    setProfile({ ...profile, headerLayout: layout.id });
-                                                    setHasChanges(true);
-                                                }}
-                                                className={`flex flex-col p-3 rounded-xl border text-left transition-all ${profile.headerLayout === layout.id
-                                                    ? 'border-sky-500 bg-sky-50'
-                                                    : 'border-slate-100 bg-white hover:bg-slate-50'
-                                                    }`}
-                                            >
-                                                <p className={`text-xs font-bold ${profile.headerLayout === layout.id ? 'text-sky-700' : 'text-slate-900'}`}>{layout.label}</p>
-                                                <p className="text-[10px] text-slate-500 font-medium mt-0.5">{layout.desc}</p>
-                                            </button>
-                                        ))}
-                                    </div>
-
-                                    {(profile.headerLayout === 'PROFILE_BANNER' || profile.headerLayout === 'FULL_HERO') && (
-                                        <div className="space-y-1 mt-2">
-                                            <div className="relative h-16 rounded-lg bg-slate-100 overflow-hidden border border-slate-200 group">
-                                                {profile.bannerUrl ? (
-                                                    <img src={profile.bannerUrl} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                                                ) : (
-                                                    <div className="w-full h-full flex flex-col items-center justify-center">
-                                                        <ImageIcon className="w-4 h-4 text-slate-400 mb-1" />
-                                                        <span className="text-[9px] text-slate-400 font-medium">Upload Banner</span>
-                                                    </div>
-                                                )}
-                                                <input type="file" accept="image/*" onChange={handleBannerUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
-                                                {uploadingBanner && (
-                                                    <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
-                                                        <Loader2 className="w-4 h-4 animate-spin text-slate-900" />
-                                                    </div>
-                                                )}
-                                            </div>
+                            <div className="flex flex-col items-center gap-3 w-1/3 text-center">
+                                <div className="w-24 h-24 rounded-full overflow-hidden bg-slate-100 border border-black/5 shadow-inner">
+                                    {profile.avatarUrl ? (
+                                        <img src={profile.avatarUrl} alt="" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center">
+                                            <User className="w-10 h-10 opacity-10" />
                                         </div>
                                     )}
                                 </div>
+                                <h1 className="text-lg font-black tracking-tight leading-tight text-black">{profile.name || "Store Name"}</h1>
+                            </div>
+
+                            {profile.bio && (
+                                <div className="flex-1 min-h-[120px] bg-[#EAEAEA] rounded-xl p-5 flex items-center justify-center text-center">
+                                    <p className="text-xs font-bold leading-relaxed text-black/60">
+                                        {profile.bio}
+                                    </p>
+                                </div>
                             )}
+                        </div>
+
+                        {/* Store Social Links (Dashboard Preview) */}
+                        <div className="w-full max-w-[480px] mb-12 flex justify-start gap-4">
+                            <div className="flex gap-4">
+                                {profile.socialLinks.instagram && <img src="/socials/instagram.png" className="w-8 h-8 opacity-80" />}
+                                {profile.socialLinks.x && <img src="/socials/x.png" className="w-8 h-8 opacity-80" />}
+                                {profile.socialLinks.whatsapp && <img src="/socials/whatsapp.png" className="w-8 h-8 opacity-80" />}
+                                {profile.socialLinks.email && <img src="/socials/mail.png" className="w-8 h-8 opacity-80" />}
+                            </div>
+                        </div>
+
+                        {/* Products Grid Preview - Fixed to match live behavior */}
+                        {products.length > 0 && (
+                            <div className="w-full max-w-[480px]">
+                                <div className="grid grid-cols-2 gap-x-4 gap-y-6">
+                                    {products.map((product: any) => (
+                                        <div
+                                            key={product.id}
+                                            className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-slate-50 shadow-sm border border-black/5 group/prod"
+                                        >
+                                            {product.imageUrls?.[0] ? (
+                                                <img
+                                                    src={product.imageUrls[0]}
+                                                    alt={product.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-black/10">
+                                                    <ImageIcon className="w-8 h-8" />
+                                                </div>
+                                            )}
+
+                                            <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/10 backdrop-blur-md flex items-center justify-center">
+                                                <Heart className="w-4 h-4 text-white" />
+                                            </div>
+
+                                            <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none" />
+
+                                            <div className="absolute bottom-4 left-4 right-4 text-white text-left">
+                                                <h3 className="text-xs font-bold leading-tight line-clamp-1 opacity-90">{product.name}</h3>
+                                                <p className="text-base font-black mt-0.5">
+                                                    {product.currency === 'UGX' ? 'USh' : '$'}{parseFloat(product.price || 0).toLocaleString()}
+                                                </p>
+                                            </div>
+
+                                            <div className="absolute bottom-4 right-4 w-7 h-7 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center border border-white/10 group-hover:bg-white group-hover:text-black transition-all">
+                                                <ShoppingBag className="w-3.5 h-3.5" />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Footer - Exactly like live */}
+                        <footer className="w-full pt-12 pb-8 text-center mt-auto flex flex-col items-center gap-4">
+                            <p className="text-[10px] font-black tracking-[0.3em] opacity-20 uppercase flex items-center gap-2 text-black">
+                                Powered By Ventra <MoreVertical className="w-3 h-3" />
+                            </p>
+                        </footer>
+                    </div>
+                )}
+
+                {activeTab === 'tools' && <ToolsView />}
+                {activeTab === 'earnings' && (
+                    <EarningsView
+                        payoutDetails={payoutDetails} setPayoutDetails={setPayoutDetails}
+                        savingPayout={savingPayout}
+                        onSavePayout={async () => {
+                            setSavingPayout(true);
+                            const res = await updateStoreProfile(user.id, { payoutDetails });
+                            if (res.success) toast.success("Payout details saved!");
+                            setSavingPayout(false);
+                        }}
+                    />
+                )}
+            </main>
+
+            <div className="fixed bottom-24 md:bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-4 z-50 px-4 w-full max-w-[450px]">
+                <div className="flex-1">
+                    {hasChanges && (
+                        <button onClick={handleSave} disabled={saving} className="w-full h-14 rounded-full bg-black text-white font-bold text-lg shadow-xl hover:bg-slate-800 transition-all">
+                            {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : "Publish Changes"}
+                        </button>
+                    )}
+                </div>
+                <div className="relative group/plus">
+                    <button onClick={() => setIsAddMenuOpen(!isAddMenuOpen)} className={`h-14 w-14 rounded-full font-black shadow-xl transition-all border flex items-center justify-center ${isAddMenuOpen ? 'bg-white text-black border-slate-200 rotate-45' : 'bg-black text-white border-transparent'}`}>
+                        <Plus className="w-6 h-6" strokeWidth={3} />
+                    </button>
+                    {isAddMenuOpen && (
+                        <div className="absolute bottom-20 right-0 w-64 bg-white rounded-2xl p-2 shadow-2xl border border-slate-100 animate-in fade-in slide-in-from-bottom-8 overflow-hidden z-50 ring-1 ring-black/5">
+                            <div className="grid grid-cols-1 gap-0.5">
+                                <button onClick={() => handleOpenAddModal('TEXT')} className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 text-left group transition-colors">
+                                    <div className="w-10 h-10 rounded-full bg-sky-50 flex items-center justify-center group-hover:shadow-sm transition-all"><Type className="w-5 h-5 text-sky-500" /></div>
+                                    <span className="font-bold text-sm text-slate-700 group-hover:text-slate-900">Add Text</span>
+                                </button>
+                                <button onClick={() => handleOpenAddModal('YOUTUBE')} className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 text-left group transition-colors">
+                                    <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center group-hover:shadow-sm transition-all"><Youtube className="w-5 h-5 text-red-500" /></div>
+                                    <span className="font-bold text-sm text-slate-700 group-hover:text-slate-900">Video URL</span>
+                                </button>
+                                <button onClick={() => handleOpenAddModal('URL')} className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 text-left group transition-colors">
+                                    <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center group-hover:shadow-sm transition-all"><LinkIcon className="w-5 h-5 text-emerald-500" /></div>
+                                    <span className="font-bold text-sm text-slate-700 group-hover:text-slate-900">Button Link</span>
+                                </button>
+                                <button onClick={() => handleOpenAddModal('IMAGE')} className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 text-left group transition-colors">
+                                    <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center group-hover:shadow-sm transition-all"><ImageIcon className="w-5 h-5 text-purple-500" /></div>
+                                    <span className="font-bold text-sm text-slate-700 group-hover:text-slate-900">Photo</span>
+                                </button>
+                                <button onClick={() => router.push('/addproduct')} className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 text-left group">
+                                    <div className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center group-hover:bg-black transition-all"><ShoppingBag className="w-5 h-5 text-white" /></div>
+                                    <span className="font-bold text-sm text-slate-700 group-hover:text-black">Sell Product</span>
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>
+            </div>
 
-                <input
-                    type="color"
-                    ref={colorInputRef}
-                    className="hidden"
-                    value={profile.themeColor}
-                    onChange={(e) => {
-                        setProfile({ ...profile, themeColor: e.target.value });
-                        setHasChanges(true);
-                    }}
-                />
-            </div >
-
-            {/* Creation Modal */}
-            {
-                pendingBlock && (
-                    <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-[100] flex items-center justify-center p-6 animate-in fade-in duration-200">
-                        <div className="w-full max-w-[420px] bg-white rounded-3xl p-8 border border-slate-100 shadow-2xl relative text-slate-900 ring-1 ring-black/5">
+            {pendingBlock && (
+                <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-[100] flex items-center justify-center p-6 animate-in fade-in duration-200">
+                    <div className="w-full max-w-[420px] bg-white rounded-3xl p-8 border border-slate-100 shadow-2xl relative text-slate-900 ring-1 ring-black/5">
+                        <div className="space-y-5">
                             {pendingBlock.type !== 'TEXT' && (
-                                <div className="text-center space-y-2 mb-8">
-                                    <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-100 shadow-sm">
-                                        {pendingBlock.type === 'YOUTUBE' && <Youtube className="w-8 h-8 text-red-500" />}
-                                        {pendingBlock.type === 'IMAGE' && <ImageIcon className="w-8 h-8 text-purple-500" />}
-                                        {pendingBlock.type === 'URL' && <LinkIcon className="w-8 h-8 text-emerald-500" />}
-                                    </div>
-                                    <h2 className="text-2xl font-black tracking-tight text-slate-900">Add New Block</h2>
-                                    <p className="text-sm text-slate-500 font-medium">Fill in the details below</p>
+                                <div className="space-y-1.5">
+                                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Title</label>
+                                    <input className="w-full bg-slate-50 border border-slate-200 rounded-xl h-14 px-4 font-bold" value={pendingBlock.title} onChange={(e) => setPendingBlock({ ...pendingBlock, title: e.target.value })} autoFocus />
                                 </div>
                             )}
-
-                            <div className="space-y-5 mt-4">
-                                {pendingBlock.type !== 'TEXT' && (
-                                    <div className="space-y-1.5">
-                                        <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Title / Label <span className="text-red-500">*</span></label>
-                                        <input
-                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl h-14 px-4 font-bold focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all text-slate-900 placeholder:text-slate-400 hover:bg-white"
-                                            placeholder="Enter Label"
-                                            value={pendingBlock.title}
-                                            onChange={(e) => setPendingBlock({ ...pendingBlock, title: e.target.value })}
-                                            autoFocus
-                                        />
-                                    </div>
-                                )}
-
-                                {pendingBlock.type === 'TEXT' && (
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Message Content <span className="text-red-500">*</span></label>
-                                        <textarea
-                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-5 font-medium focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all text-slate-900 min-h-[160px] resize-none placeholder:text-slate-400 hover:bg-white text-lg leading-relaxed"
-                                            placeholder="Type your message here..."
-                                            value={textEditorContent}
-                                            onChange={(e) => {
-                                                setTextEditorContent(e.target.value);
-                                            }}
-                                            autoFocus
-                                        />
-                                    </div>
-                                )}
-
-                                {pendingBlock.type === 'IMAGE' ? (
-                                    <div className="space-y-1.5">
-                                        <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Image</label>
-                                        <div className="relative min-h-[160px] bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center overflow-hidden group hover:border-sky-500/50 hover:bg-sky-50/50 transition-all cursor-pointer">
-                                            {pendingBlock.file ? (
-                                                <img src={URL.createObjectURL(pendingBlock.file)} className="w-full h-auto block" />
-                                            ) : (
-                                                <>
-                                                    <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                                                        <Upload className="w-5 h-5 text-sky-500" />
-                                                    </div>
-                                                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wide group-hover:text-sky-600">Click to upload</span>
-                                                </>
-                                            )}
-                                            <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => {
-                                                const file = e.target.files?.[0];
-                                                if (file) setPendingBlock({ ...pendingBlock, file });
-                                            }} />
-                                        </div>
-                                    </div>
-                                ) : (pendingBlock.type === 'URL' || pendingBlock.type === 'YOUTUBE') && (
-                                    <div className="space-y-1.5">
-                                        <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">{pendingBlock.type === 'YOUTUBE' ? 'YouTube Link' : 'Website URL'}</label>
-                                        <input
-                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl h-14 px-4 font-mono text-sm text-sky-600 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all placeholder:text-slate-400 hover:bg-white font-medium"
-                                            placeholder="https://..."
-                                            value={pendingBlock.url}
-                                            onChange={(e) => setPendingBlock({ ...pendingBlock, url: e.target.value })}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="flex flex-col gap-3 mt-8">
-                                <button
-                                    onClick={confirmAddBlock}
-                                    disabled={isCreating || (pendingBlock.type === 'TEXT' ? !textEditorContent : !pendingBlock.title) || (pendingBlock.type === 'IMAGE' && !pendingBlock.file)}
-                                    className="h-14 rounded-xl bg-black text-white font-bold text-base hover:bg-slate-800 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-black/10"
-                                >
-                                    {isCreating ? <Loader2 className="w-6 h-6 animate-spin" /> : "Create Block"}
-                                </button>
-                                <button
-                                    onClick={() => setPendingBlock(null)}
-                                    className="h-12 rounded-xl font-bold text-sm text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all"
-                                >
-                                    Cancel
-                                </button>
-                            </div>
+                            {pendingBlock.type === 'TEXT' && (
+                                <div className="space-y-2">
+                                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Message</label>
+                                    <textarea className="w-full bg-slate-50 border border-slate-200 rounded-xl p-5 min-h-[160px] resize-none" value={textEditorContent} onChange={(e) => setTextEditorContent(e.target.value)} autoFocus />
+                                </div>
+                            )}
+                            {pendingBlock.type === 'IMAGE' && (
+                                <div className="relative min-h-[160px] bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center overflow-hidden">
+                                    {pendingBlock.file ? <img src={URL.createObjectURL(pendingBlock.file)} className="w-full h-auto" /> : <div className="text-xs font-bold text-slate-500 uppercase">Click to upload image</div>}
+                                    <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => { const file = e.target.files?.[0]; if (file) setPendingBlock({ ...pendingBlock, file }); }} />
+                                </div>
+                            )}
+                            {(pendingBlock.type === 'URL' || pendingBlock.type === 'YOUTUBE') && (
+                                <div className="space-y-1.5">
+                                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Link</label>
+                                    <input className="w-full bg-slate-50 border border-slate-200 rounded-xl h-14 px-4 font-mono text-sm" value={pendingBlock.url} onChange={(e) => setPendingBlock({ ...pendingBlock, url: e.target.value })} />
+                                </div>
+                            )}
                         </div>
-                    </div>
-                )
-            }
-
-            {/* Edit Modals */}
-            {
-                (editingBlock || isEditingProfile) && (
-                    <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-[100] flex items-center justify-center p-6 animate-in fade-in duration-200">
-                        <div className="w-full max-w-[420px] bg-white rounded-3xl p-8 border border-slate-100 shadow-2xl relative text-slate-900 ring-1 ring-black/5 max-h-[90vh] overflow-y-auto">
-                            <button
-                                className="absolute top-4 right-4 h-8 w-8 rounded-full bg-slate-50 hover:bg-slate-100 flex items-center justify-center transition-colors group"
-                                onClick={() => { setEditingBlock(null); setIsEditingProfile(false); }}
-                            >
-                                <Plus className="w-5 h-5 text-slate-400 group-hover:text-slate-600 rotate-45 transition-colors" />
+                        <div className="flex flex-col gap-3 mt-8">
+                            <button onClick={confirmAddBlock} disabled={isCreating} className="h-14 rounded-xl bg-black text-white font-bold transition-all disabled:opacity-50">
+                                {isCreating ? <Loader2 className="w-6 h-6 animate-spin" /> : "Create Block"}
                             </button>
-
-                            {isEditingProfile ? (
-                                <div className="space-y-6">
-                                    <div className="text-center space-y-3">
-                                        <div className="flex items-center justify-center gap-6">
-                                            {/* Avatar Upload */}
-                                            <div className="relative w-24 h-24 group/avatar">
-                                                <div className="w-full h-full rounded-full overflow-hidden ring-4 ring-white shadow-xl bg-slate-100">
-                                                    {profile.avatarUrl ? (
-                                                        <img src={profile.avatarUrl} alt="" className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <div className="w-full h-full bg-slate-100 flex items-center justify-center">
-                                                            <User className="w-8 h-8 text-slate-300" />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                {uploadingAvatar ? (
-                                                    <div className="absolute inset-0 bg-white/80 rounded-full flex items-center justify-center z-20">
-                                                        <Loader2 className="w-6 h-6 animate-spin text-slate-900" />
-                                                    </div>
-                                                ) : (
-                                                    <label className="absolute -bottom-1 -right-1 w-8 h-8 bg-black rounded-lg flex items-center justify-center shadow-lg cursor-pointer transform hover:scale-110 transition-transform z-20">
-                                                        <Camera className="w-4 h-4 text-white" />
-                                                        <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
-                                                    </label>
-                                                )}
-                                            </div>
-
-                                            {/* Banner Upload */}
-                                            <div className="relative w-24 h-24 group/banner">
-                                                <div className="w-full h-full rounded-2xl overflow-hidden ring-4 ring-white shadow-xl bg-slate-100">
-                                                    {profile.bannerUrl ? (
-                                                        <img src={profile.bannerUrl} alt="" className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <div className="w-full h-full bg-slate-100 flex items-center justify-center">
-                                                            <ImageIcon className="w-8 h-8 text-slate-300" />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                {uploadingBanner ? (
-                                                    <div className="absolute inset-0 bg-white/80 rounded-2xl flex items-center justify-center z-20">
-                                                        <Loader2 className="w-6 h-6 animate-spin text-slate-900" />
-                                                    </div>
-                                                ) : (
-                                                    <label className="absolute -bottom-1 -right-1 w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center shadow-lg cursor-pointer transform hover:scale-110 transition-transform z-20">
-                                                        <Camera className="w-4 h-4 text-white" />
-                                                        <input type="file" accept="image/*" onChange={handleBannerUpload} className="hidden" />
-                                                    </label>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <h2 className="text-xl font-black tracking-tight text-slate-900">Edit Profile</h2>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <div className="space-y-1.5">
-                                            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Name</label>
-                                            <input
-                                                className="w-full bg-slate-50 border-none rounded-xl h-12 px-4 font-bold focus:ring-2 focus:ring-sky-500/20 transition-all text-slate-900 placeholder:text-slate-400 hover:bg-slate-100"
-                                                value={profile.name}
-                                                onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                                            />
-                                        </div>
-                                        <div className="space-y-1.5">
-                                            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Bio</label>
-                                            <textarea
-                                                className="w-full bg-slate-50 border-none rounded-xl p-4 font-medium focus:ring-2 focus:ring-sky-500/20 transition-all text-slate-900 min-h-[80px] resize-none placeholder:text-slate-400 hover:bg-slate-100"
-                                                value={profile.bio}
-                                                onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                                            />
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <div className="space-y-1.5">
-                                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Instagram</label>
-                                                <input
-                                                    className="w-full bg-slate-50 border-none rounded-xl h-10 px-3 text-sm font-bold focus:ring-2 focus:ring-sky-500/20 transition-all text-slate-900 placeholder:text-slate-400 hover:bg-slate-100"
-                                                    placeholder="@username"
-                                                    value={profile.socialLinks.instagram || ""}
-                                                    onChange={(e) => setProfile({ ...profile, socialLinks: { ...profile.socialLinks, instagram: e.target.value } })}
-                                                />
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">X (Twitter)</label>
-                                                <input
-                                                    className="w-full bg-slate-50 border-none rounded-xl h-10 px-3 text-sm font-bold focus:ring-2 focus:ring-sky-500/20 transition-all text-slate-900 placeholder:text-slate-400 hover:bg-slate-100"
-                                                    placeholder="@username"
-                                                    value={profile.socialLinks.x || ""}
-                                                    onChange={(e) => setProfile({ ...profile, socialLinks: { ...profile.socialLinks, x: e.target.value } })}
-                                                />
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">YouTube</label>
-                                                <input
-                                                    className="w-full bg-slate-50 border-none rounded-xl h-10 px-3 text-sm font-bold focus:ring-2 focus:ring-sky-500/20 transition-all text-slate-900 placeholder:text-slate-400 hover:bg-slate-100"
-                                                    placeholder="@channel"
-                                                    value={profile.socialLinks.youtube || ""}
-                                                    onChange={(e) => setProfile({ ...profile, socialLinks: { ...profile.socialLinks, youtube: e.target.value } })}
-                                                />
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">WhatsApp</label>
-                                                <input
-                                                    className="w-full bg-slate-50 border-none rounded-xl h-10 px-3 text-sm font-bold focus:ring-2 focus:ring-sky-500/20 transition-all text-slate-900 placeholder:text-slate-400 hover:bg-slate-100"
-                                                    placeholder="+1..."
-                                                    value={profile.socialLinks.whatsapp || ""}
-                                                    onChange={(e) => setProfile({ ...profile, socialLinks: { ...profile.socialLinks, whatsapp: e.target.value } })}
-                                                />
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Reddit</label>
-                                                <input
-                                                    className="w-full bg-slate-50 border-none rounded-xl h-10 px-3 text-sm font-bold focus:ring-2 focus:ring-sky-500/20 transition-all text-slate-900 placeholder:text-slate-400 hover:bg-slate-100"
-                                                    placeholder="u/username"
-                                                    value={profile.socialLinks.reddit || ""}
-                                                    onChange={(e) => setProfile({ ...profile, socialLinks: { ...profile.socialLinks, reddit: e.target.value } })}
-                                                />
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Email</label>
-                                                <input
-                                                    className="w-full bg-slate-50 border-none rounded-xl h-10 px-3 text-sm font-bold focus:ring-2 focus:ring-sky-500/20 transition-all text-slate-900 placeholder:text-slate-400 hover:bg-slate-100"
-                                                    placeholder="hello@..."
-                                                    value={profile.socialLinks.email || ""}
-                                                    onChange={(e) => setProfile({ ...profile, socialLinks: { ...profile.socialLinks, email: e.target.value } })}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="mt-8">
-                                        <button
-                                            onClick={handleSave}
-                                            disabled={saving}
-                                            className="w-full h-14 rounded-xl bg-black text-white font-bold text-base hover:bg-slate-800 transition-all flex items-center justify-center disabled:opacity-50 shadow-lg shadow-black/10"
-                                        >
-                                            {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Profile"}
-                                        </button>
-                                    </div>
-                                </div>
-                            ) : editingBlock && (
-                                <div className="space-y-6">
-                                    <div className="text-center space-y-2 mb-6">
-                                        <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-100 shadow-sm">
-                                            {editingBlock.type === 'TEXT' && <Type className="w-8 h-8 text-sky-500" />}
-                                            {editingBlock.type === 'IMAGE' && <ImageIcon className="w-8 h-8 text-purple-500" />}
-                                            {editingBlock.type === 'URL' && <LinkIcon className="w-8 h-8 text-emerald-500" />}
-                                            {editingBlock.type === 'YOUTUBE' && <Youtube className="w-8 h-8 text-red-500" />}
-                                        </div>
-                                        <h2 className="text-2xl font-black tracking-tight text-center text-slate-900">Edit Block</h2>
-                                    </div>
-
-                                    <div className="space-y-5">
-                                        {editingBlock.type !== 'TEXT' && (
-                                            <div className="space-y-1.5">
-                                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Title</label>
-                                                <input
-                                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl h-12 px-4 font-bold focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all text-slate-900 placeholder:text-slate-400"
-                                                    value={editingBlock.title}
-                                                    onChange={(e) => setEditingBlock({ ...editingBlock, title: e.target.value })}
-                                                />
-                                            </div>
-                                        )}
-
-                                        {editingBlock.type === 'TEXT' && (
-                                            <div className="space-y-2">
-                                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Message Content</label>
-                                                <textarea
-                                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-5 font-medium focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all text-slate-900 min-h-[160px] resize-none placeholder:text-slate-400 text-lg leading-relaxed"
-                                                    value={textEditorContent}
-                                                    onChange={(e) => {
-                                                        setTextEditorContent(e.target.value);
-                                                        setEditingBlock({ ...editingBlock, title: e.target.value.slice(0, 30) });
-                                                    }}
-                                                />
-                                            </div>
-                                        )}
-
-                                        {editingBlock.type === 'IMAGE' ? (
-                                            <div className="space-y-1.5">
-                                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Image</label>
-                                                <div className="relative rounded-xl bg-slate-50 overflow-hidden group border border-slate-200 hover:border-sky-500/30 transition-all">
-                                                    {uploadingBlockId === editingBlock.id ? (
-                                                        <div className="h-48 flex items-center justify-center">
-                                                            <Loader2 className="w-8 h-8 animate-spin text-sky-500" />
-                                                        </div>
-                                                    ) : (
-                                                        <>
-                                                            <img src={editingBlock.url} className="w-full h-auto block transition-all group-hover:scale-105" />
-                                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                                <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
-                                                                    <Camera className="w-4 h-4 text-slate-900" />
-                                                                    <span className="text-xs font-bold text-slate-900">Change Image</span>
-                                                                </div>
-                                                            </div>
-                                                            <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => handleBlockImageUpload(e, editingBlock.id)} />
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        ) : (editingBlock.type === 'URL' || editingBlock.type === 'YOUTUBE') && (
-                                            <div className="space-y-1.5">
-                                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">{editingBlock.type === 'YOUTUBE' ? 'YouTube Link' : 'Website URL'}</label>
-                                                <input
-                                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl h-12 px-4 font-mono text-sm text-sky-600 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all font-medium placeholder:text-slate-400"
-                                                    value={editingBlock.url}
-                                                    onChange={(e) => setEditingBlock({ ...editingBlock, url: e.target.value })}
-                                                />
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="flex flex-col gap-3 mt-8">
-                                        <button
-                                            onClick={confirmEditBlock}
-                                            disabled={saving}
-                                            className="h-14 rounded-xl bg-black text-white font-bold text-base hover:bg-slate-800 transition-all flex items-center justify-center disabled:opacity-50 shadow-xl shadow-black/10"
-                                        >
-                                            {saving ? <Loader2 className="w-6 h-6 animate-spin" /> : "Save Changes"}
-                                        </button>
-                                        <button
-                                            onClick={() => { handleDelete(editingBlock.id); setEditingBlock(null); }}
-                                            className="h-12 rounded-xl font-bold text-sm text-red-500 hover:text-red-600 hover:bg-red-50 transition-all"
-                                        >
-                                            Delete Block
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
+                            <button onClick={() => setPendingBlock(null)} className="h-12 rounded-xl font-bold text-sm text-slate-400">Cancel</button>
                         </div>
                     </div>
-                )
-            }
-
-            {/* Desktop Side Navigation */}
-            <aside className="hidden md:flex fixed top-16 left-0 bottom-0 w-20 bg-white/80 backdrop-blur-xl border-r border-slate-100 z-40 flex-col items-center py-6 gap-8">
-                <button
-                    onClick={() => setActiveTab('store')}
-                    className={`flex flex-col items-center justify-center gap-1.5 w-12 h-12 rounded-2xl transition-all ${activeTab === 'store'
-                        ? 'bg-black text-white shadow-lg shadow-black/20'
-                        : 'bg-transparent text-slate-400 hover:text-slate-600 hover:bg-slate-50'
-                        }`}
-                >
-                    <Home className="w-5 h-5" strokeWidth={activeTab === 'store' ? 2.5 : 2} />
-                </button>
-
-                <div className="w-full h-[1px] bg-slate-100 mx-auto w-10" />
-
-                <div className="flex flex-col gap-6">
-                    <button
-                        onClick={() => setActiveTab('products')}
-                        className={`group relative flex items-center justify-center w-12 h-12 rounded-xl transition-all ${activeTab === 'products' ? 'text-black bg-slate-50' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
-                    >
-                        <Package className="w-5 h-5" strokeWidth={activeTab === 'products' ? 2.5 : 2} />
-                        <span className="absolute left-14 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                            Products
-                        </span>
-                    </button>
-
-                    <button
-                        onClick={() => setActiveTab('tools')}
-                        className={`group relative flex items-center justify-center w-12 h-12 rounded-xl transition-all ${activeTab === 'tools' ? 'text-black bg-slate-50' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
-                    >
-                        <Sparkles className="w-5 h-5" strokeWidth={activeTab === 'tools' ? 2.5 : 2} />
-                        <span className="absolute left-14 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                            Tools
-                        </span>
-                    </button>
-
-                    <button
-                        onClick={() => setActiveTab('earnings')}
-                        className={`group relative flex items-center justify-center w-12 h-12 rounded-xl transition-all ${activeTab === 'earnings' ? 'text-black bg-slate-50' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
-                    >
-                        <Banknote className="w-5 h-5" strokeWidth={activeTab === 'earnings' ? 2.5 : 2} />
-                        <span className="absolute left-14 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                            Earnings
-                        </span>
-                    </button>
-
-                    <button
-                        onClick={() => setActiveTab('settings')}
-                        className={`group relative flex items-center justify-center w-12 h-12 rounded-xl transition-all ${activeTab === 'settings' ? 'text-black bg-slate-50' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
-                    >
-                        <Settings className="w-5 h-5" strokeWidth={activeTab === 'settings' ? 2.5 : 2} />
-                        <span className="absolute left-14 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                            Settings
-                        </span>
-                    </button>
                 </div>
-            </aside>
+            )}
 
-            {/* Mobile Bottom Navigation Bar */}
-            <nav className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-xl border-t border-slate-100 z-50 flex items-center justify-around px-2 safe-area-bottom">
-                <button
-                    onClick={() => setActiveTab('products')}
-                    className={`flex flex-col items-center gap-1.5 w-[64px] py-1 rounded-xl transition-all ${activeTab === 'products' ? 'text-black' : 'text-slate-400 hover:text-slate-600'}`}
-                >
-                    <Package className="w-5 h-5" strokeWidth={activeTab === 'products' ? 2.5 : 2} />
-                    <span className="text-[10px] font-black uppercase tracking-[0.1em]">Products</span>
-                </button>
+            {(editingBlock || isEditingProfile) && (
+                <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-[100] flex items-center justify-center p-6 animate-in fade-in duration-200">
+                    <div className="w-full max-w-[420px] bg-white rounded-3xl p-8 border border-slate-100 shadow-2xl relative text-slate-900 ring-1 ring-black/5 max-h-[90vh] overflow-y-auto">
+                        <button className="absolute top-4 right-4 h-8 w-8 rounded-full bg-slate-50 hover:bg-slate-100 flex items-center justify-center transition-colors group" onClick={() => { setEditingBlock(null); setIsEditingProfile(false); }}>
+                            <Plus className="w-5 h-5 text-slate-400 group-hover:text-slate-600 rotate-45" />
+                        </button>
 
-                <button
-                    onClick={() => setActiveTab('tools')}
-                    className={`flex flex-col items-center gap-1.5 w-[64px] py-1 rounded-xl transition-all ${activeTab === 'tools' ? 'text-black' : 'text-slate-400 hover:text-slate-600'}`}
-                >
-                    <Sparkles className="w-5 h-5" strokeWidth={activeTab === 'tools' ? 2.5 : 2} />
-                    <span className="text-[10px] font-black uppercase tracking-[0.1em]">Tools</span>
-                </button>
-
-                {/* Center Store Button */}
-                <button
-                    onClick={() => setActiveTab('store')}
-                    className={`flex flex-col items-center justify-center gap-1.5 w-[72px] h-[72px] -mt-6 rounded-3xl transition-all ${activeTab === 'store'
-                        ? 'bg-black text-white shadow-xl shadow-black/20 scale-105'
-                        : 'bg-white text-slate-400 hover:text-slate-600 border border-slate-100'
-                        }`}
-                >
-                    <Home className="w-6 h-6" strokeWidth={activeTab === 'store' ? 2.5 : 2} />
-                    <span className="text-[9px] font-black uppercase tracking-widest">Store</span>
-                </button>
-
-                <button
-                    onClick={() => setActiveTab('settings')}
-                    className={`flex flex-col items-center gap-1.5 w-[64px] py-1 rounded-xl transition-all ${activeTab === 'settings' ? 'text-black' : 'text-slate-400 hover:text-slate-600'}`}
-                >
-                    <Settings className="w-5 h-5" strokeWidth={activeTab === 'settings' ? 2.5 : 2} />
-                    <span className="text-[10px] font-black uppercase tracking-[0.1em]">Settings</span>
-                </button>
-
-                <button
-                    onClick={() => setActiveTab('earnings')}
-                    className={`flex flex-col items-center gap-1.5 w-[64px] py-1 rounded-xl transition-all ${activeTab === 'earnings' ? 'text-black' : 'text-slate-400 hover:text-slate-600'}`}
-                >
-                    <Banknote className="w-5 h-5" strokeWidth={activeTab === 'earnings' ? 2.5 : 2} />
-                    <span className="text-[10px] font-black uppercase tracking-[0.1em]">Earnings</span>
-                </button>
-            </nav>
-
-            {/* Add/Edit Product Modal */}
-            {
-                isProductModalOpen && (
-                    <div className="fixed inset-0 z-[60] flex items-center justify-center">
-                        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm" onClick={() => { setIsProductModalOpen(false); resetProductForm(); }} />
-                        <div className="w-full max-w-[420px] bg-white rounded-3xl p-8 border border-slate-100 shadow-2xl relative text-slate-900 max-h-[90vh] overflow-y-auto mx-4 animate-in fade-in slide-in-from-bottom-8 ring-1 ring-black/5">
-                            <div className="flex items-center justify-between mb-8">
-                                <h2 className="text-2xl font-black tracking-tight text-slate-900">{editingProduct ? "Edit Product" : "Add Product"}</h2>
-                                <button onClick={() => { setIsProductModalOpen(false); resetProductForm(); }} className="p-2 -mr-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-50 transition-all">
-                                    <X className="w-6 h-6" />
+                        {isEditingProfile ? (
+                            <div className="space-y-6">
+                                <div className="flex items-center justify-center">
+                                    <div className="relative w-28 h-28 group/avatar">
+                                        <div className="w-full h-full rounded-full overflow-hidden ring-4 ring-white shadow-xl bg-slate-100">
+                                            {profile.avatarUrl ? <img src={profile.avatarUrl} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-slate-100 flex items-center justify-center"><User className="w-10 h-10 text-slate-300" /></div>}
+                                        </div>
+                                        {uploadingAvatar ? (
+                                            <div className="absolute inset-0 bg-white/80 rounded-full flex items-center justify-center z-20"><Loader2 className="w-6 h-6 animate-spin text-slate-900" /></div>
+                                        ) : (
+                                            <label className="absolute -bottom-1 -right-1 w-10 h-10 bg-black rounded-xl flex items-center justify-center shadow-lg cursor-pointer transform hover:scale-110 transition-transform z-20">
+                                                <Camera className="w-5 h-5 text-white" />
+                                                <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                                            </label>
+                                        )}
+                                    </div>
+                                </div>
+                                <h2 className="text-2xl font-black tracking-tight text-center text-slate-900">Edit Profile</h2>
+                                <div className="space-y-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Name</label>
+                                        <input className="w-full bg-slate-50 border-none rounded-xl h-12 px-4 font-bold" value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Bio</label>
+                                        <textarea className="w-full bg-slate-50 border-none rounded-xl p-4 font-medium min-h-[80px] resize-none" value={profile.bio} onChange={(e) => setProfile({ ...profile, bio: e.target.value })} />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1.5">
+                                            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Instagram</label>
+                                            <input className="w-full bg-slate-50 border-none rounded-xl h-10 px-3 text-sm font-bold" placeholder="@username" value={profile.socialLinks.instagram || ""} onChange={(e) => setProfile({ ...profile, socialLinks: { ...profile.socialLinks, instagram: e.target.value } })} />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">WhatsApp</label>
+                                            <input className="w-full bg-slate-50 border-none rounded-xl h-10 px-3 text-sm font-bold" placeholder="+1..." value={profile.socialLinks.whatsapp || ""} onChange={(e) => setProfile({ ...profile, socialLinks: { ...profile.socialLinks, whatsapp: e.target.value } })} />
+                                        </div>
+                                    </div>
+                                </div>
+                                <button onClick={handleSave} disabled={saving} className="w-full h-14 rounded-xl bg-black text-white font-bold text-base hover:bg-slate-800 transition-all">
+                                    {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Profile"}
                                 </button>
                             </div>
-
+                        ) : editingBlock ? (
                             <div className="space-y-6">
-                                {/* Product Name */}
-                                <div className="space-y-1.5">
-                                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Product Name *</label>
-                                    <input
-                                        className="w-full bg-slate-50 border-none rounded-xl h-12 px-4 font-bold focus:ring-2 focus:ring-sky-500/20 transition-all text-slate-900 placeholder:text-slate-400 hover:bg-slate-100"
-                                        placeholder="e.g. Design Template Pack"
-                                        value={pendingProduct.name}
-                                        onChange={(e) => setPendingProduct({ ...pendingProduct, name: e.target.value })}
-                                    />
-                                </div>
-
-                                {/* Description */}
-                                <div className="space-y-1.5">
-                                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Description</label>
-                                    <textarea
-                                        className="w-full bg-slate-50 border-none rounded-xl p-4 font-medium focus:ring-2 focus:ring-sky-500/20 transition-all text-slate-900 min-h-[100px] resize-none placeholder:text-slate-400 hover:bg-slate-100"
-                                        placeholder="Describe your product..."
-                                        value={pendingProduct.description}
-                                        onChange={(e) => setPendingProduct({ ...pendingProduct, description: e.target.value })}
-                                    />
-                                </div>
-
-                                {/* Price */}
-                                <div className="space-y-1.5">
-                                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Price (USD) *</label>
-                                    <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
-                                        <input
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            className="w-full bg-slate-50 border-none rounded-xl h-12 pl-8 pr-4 font-bold focus:ring-2 focus:ring-sky-500/20 transition-all text-slate-900 placeholder:text-slate-400 hover:bg-slate-100"
-                                            placeholder="29.99"
-                                            value={pendingProduct.price}
-                                            onChange={(e) => setPendingProduct({ ...pendingProduct, price: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Product Type */}
-                                <div className="space-y-1.5">
-                                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Product Type</label>
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={() => setPendingProduct({ ...pendingProduct, type: "DIGITAL" })}
-                                            className={`flex-1 h-12 rounded-xl font-bold text-sm transition-all border-2 ${pendingProduct.type === "DIGITAL" ? 'bg-black text-white border-black shadow-lg shadow-black/10' : 'bg-slate-50 text-slate-400 border-transparent hover:bg-slate-100'}`}
-                                        >
-                                            Digital
-                                        </button>
-                                        <button
-                                            onClick={() => setPendingProduct({ ...pendingProduct, type: "SERVICE" })}
-                                            className={`flex-1 h-12 rounded-xl font-bold text-sm transition-all border-2 ${pendingProduct.type === "SERVICE" ? 'bg-black text-white border-black shadow-lg shadow-black/10' : 'bg-slate-50 text-slate-400 border-transparent hover:bg-slate-100'}`}
-                                        >
-                                            Service
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {/* Product Images */}
-                                <div className="space-y-1.5">
-                                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Product Images</label>
-                                    <div className="flex gap-3 flex-wrap">
-                                        {pendingProduct.imageUrls.map((url, i) => (
-                                            <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden shadow-sm border border-slate-100 group">
-                                                <img src={url} alt="" className="w-full h-full object-cover" />
-                                                <button
-                                                    onClick={() => removeProductImage(i)}
-                                                    className="absolute top-1 right-1 p-1 bg-white rounded-full text-slate-400 hover:text-red-500 shadow-sm opacity-0 group-hover:opacity-100 transition-all"
-                                                >
-                                                    <X className="w-3 h-3" />
-                                                </button>
-                                            </div>
-                                        ))}
-                                        <label className="w-20 h-20 rounded-xl bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-100 hover:border-sky-500/50 transition-all group">
-                                            {uploadingProductImage ? <Loader2 className="w-5 h-5 animate-spin text-slate-400" /> : <Plus className="w-6 h-6 text-slate-400 group-hover:text-sky-500 transition-colors" />}
-                                            <input type="file" accept="image/*" className="hidden" onChange={handleProductImageUpload} />
-                                        </label>
-                                    </div>
-                                </div>
-
-                                {/* Digital File (for digital products) */}
-                                {pendingProduct.type === "DIGITAL" && (
-                                    <div className="space-y-1.5">
-                                        <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Digital File</label>
-                                        <div>
-                                            {pendingProduct.fileUrl ? (
-                                                <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-100 rounded-xl p-4 group">
-                                                    <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                                                        <Package className="w-5 h-5 text-emerald-600" />
-                                                    </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="text-xs font-bold text-emerald-700 truncate">File Uploaded</p>
-                                                        <p className="text-[10px] font-medium text-emerald-600/70">Ready for download</p>
-                                                    </div>
-                                                    <button onClick={() => setPendingProduct({ ...pendingProduct, fileUrl: "" })} className="text-emerald-400 hover:text-emerald-600 p-2">
-                                                        <X className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <label className="flex items-center gap-4 bg-slate-50 border border-slate-100 rounded-xl p-4 cursor-pointer hover:bg-white hover:border-sky-200 hover:shadow-md transition-all group">
-                                                    <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-                                                        {uploadingProductFile ? <Loader2 className="w-5 h-5 animate-spin text-sky-500" /> : <Upload className="w-5 h-5 text-sky-500" />}
-                                                    </div>
-                                                    <div className="flex flex-col">
-                                                        <span className="text-sm font-bold text-slate-700">Upload Product File</span>
-                                                        <span className="text-[11px] text-slate-400 font-medium">PDF, ZIP, etc.</span>
-                                                    </div>
-                                                    <input type="file" className="hidden" accept=".pdf,.zip,.rar,.txt,.doc,.docx,.xls,.xlsx,.ppt,.pptx" onChange={handleProductFileUpload} />
-                                                </label>
-                                            )}
+                                <h2 className="text-2xl font-black tracking-tight text-center text-slate-900">Edit Block</h2>
+                                <div className="space-y-5">
+                                    {editingBlock.type !== 'TEXT' && (
+                                        <div className="space-y-1.5">
+                                            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Title</label>
+                                            <input className="w-full bg-slate-50 border border-slate-200 rounded-xl h-12 px-4 font-bold" value={editingBlock.title} onChange={(e) => setEditingBlock({ ...editingBlock, title: e.target.value })} />
                                         </div>
+                                    )}
+                                    {editingBlock.type === 'TEXT' && (
+                                        <div className="space-y-2">
+                                            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Message</label>
+                                            <textarea className="w-full bg-slate-50 border border-slate-200 rounded-xl p-5 min-h-[160px] resize-none" value={textEditorContent} onChange={(e) => setTextEditorContent(e.target.value)} />
+                                        </div>
+                                    )}
+                                    {(editingBlock.type === 'URL' || editingBlock.type === 'YOUTUBE') && (
+                                        <div className="space-y-1.5">
+                                            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Link</label>
+                                            <input className="w-full bg-slate-50 border border-slate-200 rounded-xl h-12 px-4 font-mono text-sm" value={editingBlock.url} onChange={(e) => setEditingBlock({ ...editingBlock, url: e.target.value })} />
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex flex-col gap-3 mt-8">
+                                    <button onClick={confirmEditBlock} disabled={saving} className="h-14 rounded-xl bg-black text-white font-bold">
+                                        {saving ? <Loader2 className="w-6 h-6 animate-spin" /> : "Save Changes"}
+                                    </button>
+                                    <button onClick={() => { handleDelete(editingBlock.id); setEditingBlock(null); }} className="h-12 rounded-xl font-bold text-sm text-red-500 hover:bg-red-50 transition-all">Delete Block</button>
+                                </div>
+                            </div>
+                        ) : null}
+                    </div>
+                </div>
+            )}
+
+            <MobileNav activeTab={activeTab} setActiveTab={setActiveTab} />
+
+            {isProductModalOpen && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => { setIsProductModalOpen(false); resetProductForm(); }} />
+                    <div className="w-full max-w-[440px] bg-[#F8F8F8] rounded-[2.5rem] overflow-hidden shadow-2xl relative text-black max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-300">
+                        <div className="flex-1 overflow-y-auto pb-24 relative custom-scrollbar">
+                            <div className="relative aspect-[4/5] bg-slate-100 group">
+                                {pendingProduct.imageUrls?.[0] ? <img src={pendingProduct.imageUrls[0]} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex flex-col items-center justify-center text-slate-300"><ImageIcon className="w-16 h-16 mb-2 opacity-20" /><p className="text-xs font-bold uppercase tracking-widest opacity-40">No Image Uploaded</p></div>}
+                                <div className="absolute top-6 left-6 right-6 flex justify-between items-center pointer-events-none">
+                                    <button onClick={() => { setIsProductModalOpen(false); resetProductForm(); }} className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm text-black flex items-center justify-center shadow-lg pointer-events-auto"><ChevronLeft className="w-6 h-6" /></button>
+                                    <div className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm text-black flex items-center justify-center shadow-lg pointer-events-auto"><ShoppingBag className="w-5 h-5" /></div>
+                                </div>
+                                <label className="absolute bottom-6 right-6 w-12 h-12 rounded-full bg-white shadow-xl flex items-center justify-center cursor-pointer hover:scale-110 active:scale-95 transition-all">
+                                    {uploadingProductImage ? <Loader2 className="w-5 h-5 animate-spin text-black" /> : <Camera className="w-5 h-5 text-black" />}
+                                    <input type="file" accept="image/*" className="hidden" onChange={handleProductImageUpload} />
+                                </label>
+                            </div>
+                            <div className="bg-white rounded-t-[2.5rem] -mt-10 relative z-10 p-8 space-y-8">
+                                <div>
+                                    <div className="flex justify-between items-start gap-4 mb-2">
+                                        <div className="flex-1">
+                                            <input className="w-full bg-transparent border-none p-0 text-3xl font-black text-black placeholder:text-black/10 focus:ring-0" placeholder="Product Name" value={pendingProduct.name} onChange={(e) => setPendingProduct({ ...pendingProduct, name: e.target.value })} />
+                                            <p className="text-sm font-medium text-black/40 mt-1">Digital Asset • Worldwide Delivery</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-1">{[1, 2, 3, 4, 5].map(i => <Sparkles key={i} className="w-3 h-3 text-amber-400 fill-amber-400" />)}</div>
+                                </div>
+                                <div className="space-y-4">
+                                    <h3 className="text-sm font-black uppercase tracking-widest text-black/30">Select Type</h3>
+                                    <div className="flex gap-2">
+                                        <button onClick={() => setPendingProduct({ ...pendingProduct, type: "DIGITAL" })} className={`h-14 flex-1 rounded-2xl font-bold transition-all border-2 ${pendingProduct.type === "DIGITAL" ? 'bg-black text-white border-black' : 'bg-white text-black/40 border-black/5'}`}>Digital Asset</button>
+                                        <button onClick={() => setPendingProduct({ ...pendingProduct, type: "SERVICE" })} className={`h-14 flex-1 rounded-2xl font-bold transition-all border-2 ${pendingProduct.type === "SERVICE" ? 'bg-black text-white border-black' : 'bg-white text-black/40 border-black/5'}`}>Service</button>
+                                    </div>
+                                </div>
+                                <div className="space-y-4">
+                                    <h3 className="text-sm font-black uppercase tracking-widest text-black/30">Description</h3>
+                                    <textarea className="w-full bg-slate-50 border-none rounded-2xl p-6 text-sm font-medium text-black/60 min-h-[120px] resize-none focus:ring-1 focus:ring-black/5" placeholder="Tell your customers about this piece..." value={pendingProduct.description} onChange={(e) => setPendingProduct({ ...pendingProduct, description: e.target.value })} />
+                                </div>
+                                {pendingProduct.type === "DIGITAL" && (
+                                    <div className="space-y-4">
+                                        <h3 className="text-sm font-black uppercase tracking-widest text-black/30">Digital Delivery</h3>
+                                        {pendingProduct.fileUrl ? (
+                                            <div className="flex items-center gap-4 bg-emerald-50/50 border border-emerald-100 rounded-[2rem] p-5">
+                                                <div className="w-12 h-12 rounded-2xl bg-emerald-500 flex items-center justify-center"><Check className="w-6 h-6 text-white" /></div>
+                                                <div className="flex-1 min-w-0"><p className="text-sm font-black text-black">File Attached</p></div>
+                                                <button onClick={() => setPendingProduct({ ...pendingProduct, fileUrl: "" })} className="text-slate-300 hover:text-red-500 p-2"><X className="w-5 h-5" /></button>
+                                            </div>
+                                        ) : (
+                                            <label className="flex items-center gap-5 p-6 rounded-[2rem] bg-slate-50 border-2 border-dashed border-slate-200 cursor-pointer hover:bg-white hover:border-black/20 transition-all group">
+                                                <div className="w-12 h-12 rounded-2xl bg-white shadow-md flex items-center justify-center group-hover:scale-110 transition-transform">{uploadingProductFile ? <Loader2 className="w-6 h-6 animate-spin text-black" /> : <Plus className="w-6 h-6 text-black" />}</div>
+                                                <div className="flex flex-col"><span className="text-sm font-black text-black">Upload digital file</span><span className="text-[11px] text-black/40 font-bold uppercase tracking-tighter">MAX 500MB</span></div>
+                                                <input type="file" className="hidden" onChange={handleProductFileUpload} />
+                                            </label>
+                                        )}
                                     </div>
                                 )}
-
-                                {/* Button Text */}
-                                <div className="space-y-1.5">
-                                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Button Text</label>
-                                    <input
-                                        className="w-full bg-slate-50 border-none rounded-xl h-12 px-4 font-bold focus:ring-2 focus:ring-sky-500/20 transition-all text-slate-900 placeholder:text-slate-400 hover:bg-slate-100"
-                                        placeholder="Get Started"
-                                        value={pendingProduct.buttonText}
-                                        onChange={(e) => setPendingProduct({ ...pendingProduct, buttonText: e.target.value })}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="flex flex-col gap-3 mt-8">
-                                <button
-                                    onClick={handleSaveProduct}
-                                    disabled={saving}
-                                    className="h-14 rounded-xl bg-black text-white font-bold text-base hover:bg-slate-800 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center disabled:opacity-50 shadow-xl shadow-black/10"
-                                >
-                                    {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : (editingProduct ? "Save Changes" : "Add Product")}
-                                </button>
-                                <button
-                                    onClick={() => { setIsProductModalOpen(false); resetProductForm(); }}
-                                    className="h-12 rounded-xl font-bold text-sm text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all"
-                                >
-                                    Cancel
-                                </button>
                             </div>
                         </div>
+                        <div className="absolute bottom-0 left-0 right-0 p-6 bg-white/80 backdrop-blur-xl border-t border-black/5 flex items-center gap-6 z-20">
+                            <div className="flex-shrink-0">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-black/30 mb-1 leading-none">Price Tag</p>
+                                <div className="flex items-center text-black font-black text-2xl tracking-tighter">
+                                    <span className="text-sm mt-1 mr-1.5 opacity-40">$</span>
+                                    <input type="number" className="w-20 bg-transparent border-none p-0 focus:ring-0 text-2xl font-black" placeholder="0.00" value={pendingProduct.price} onChange={(e) => setPendingProduct({ ...pendingProduct, price: e.target.value })} />
+                                </div>
+                            </div>
+                            <button onClick={handleSaveProduct} disabled={saving || !pendingProduct.name || !pendingProduct.price} className="flex-1 h-16 bg-black text-white rounded-[1.5rem] font-black text-base shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:grayscale">
+                                {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : (editingProduct ? "Update Product" : "Create Product")}
+                                {!saving && <ChevronRight className="w-5 h-5 opacity-40" />}
+                            </button>
+                        </div>
                     </div>
-                )
-            }
-
-        </div >
+                </div>
+            )}
+        </div>
     );
 }
 

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Store, Loader2, Mail, Lock, ArrowLeft } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 
@@ -15,6 +15,7 @@ function LoginForm() {
     const [loading, setLoading] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
 
     const message = searchParams.get("message");
 
@@ -24,15 +25,33 @@ function LoginForm() {
 
         try {
             const supabase = createClient();
-            const { error } = await supabase.auth.signInWithPassword({
+            const { data: authData, error } = await supabase.auth.signInWithPassword({
                 email,
                 password,
             });
 
             if (error) throw error;
 
+            // Check if user has a store
+            const { data: store, error: storeError } = await supabase
+                .from('Store')
+                .select('slug')
+                .eq('userId', authData.user?.id)
+                .single();
+
+            if (storeError && storeError.code !== 'PGRST116') {
+                console.error("Store check error:", storeError);
+            }
+
             toast.success("Signed in successfully!");
-            router.push("/dashboard");
+
+            if (!store) {
+                // No store found, go to setup
+                router.push("/setup");
+            } else {
+                // Store exists, go to dashboard
+                router.push("/dashboard");
+            }
             router.refresh();
         } catch (error: any) {
             toast.error(error.message || "Invalid login credentials");
@@ -42,99 +61,128 @@ function LoginForm() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#020617] text-[#f8fafc] selection:bg-sky-500/30 relative overflow-hidden font-sans">
-            {/* Premium Background */}
-            <div className="fixed inset-0 pointer-events-none z-0">
-                <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:40px_40px] opacity-20"></div>
-                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-sky-500/10 rounded-full blur-[120px] animate-pulse-subtle"></div>
-                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-500/10 rounded-full blur-[120px] animate-pulse-subtle" style={{ animationDelay: '2s' }}></div>
-            </div>
-
-            {/* Back to Home */}
-            <Link
-                href="/"
-                className="absolute top-8 left-8 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-white transition-colors z-20 group"
+        <div className="relative min-h-screen w-full overflow-hidden bg-black">
+            {/* Video Background */}
+            <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
             >
-                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                Back to home
-            </Link>
+                <source src="/videos/introVideo.mp4" type="video/mp4" />
+            </video>
 
-            <div className="w-full max-w-[440px] relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-                {/* Header Section */}
-                <div className="text-center mb-12 space-y-4">
-                    <div className="w-20 h-20 flex items-center justify-center mx-auto mb-8">
-                        <img src="/ventra-logo.svg" alt="Ventra Logo" className="w-full h-full" />
+            {/* Dark Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/20" />
+
+            {/* Content Container */}
+            <div className="relative z-10 min-h-screen flex flex-col">
+                {/* Top Section - Page Indicators (showing we're on login) */}
+                <div className="pt-16 px-6">
+                    <div className="flex gap-2">
+                        <div className="w-2 h-1 rounded-full bg-white/30" />
+                        <div className="w-2 h-1 rounded-full bg-white/30" />
+                        <div className="w-8 h-1 rounded-full bg-white" />
                     </div>
-                    <h1 className="text-3xl sm:text-4xl font-black tracking-tighter leading-tight">Welcome back</h1>
-                    <p className="text-gray-500 text-base font-medium">
-                        {message === "check-email"
-                            ? "Please check your email to verify your account."
-                            : "Your micro-store is waiting for you."
-                        }
-                    </p>
                 </div>
 
-                <div className="bg-white/[0.03] border border-white/[0.08] backdrop-blur-3xl rounded-[32px] p-8 sm:p-10 shadow-2xl">
-                    <form onSubmit={handleLogin} className="space-y-4 text-left">
-                        {/* Email Field */}
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 ml-1">Email Address</label>
-                            <div className="relative group">
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600">
-                                    <Mail className="w-4 h-4" />
-                                </div>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    placeholder="keith@tryventra.com"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
-                                    className="h-14 pl-12 rounded-xl bg-white/[0.03] border-white/[0.08] focus:border-sky-500/50 focus:ring-sky-500/10 transition-all text-base font-medium text-white placeholder:text-gray-800"
-                                />
-                            </div>
-                        </div>
+                {/* Spacer */}
+                <div className="flex-1" />
 
-                        {/* Password Field */}
-                        <div className="space-y-1.5">
-                            <div className="flex justify-between items-center ml-1">
-                                <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500">Secure Password</label>
-                                <Link href="#" className="text-[10px] font-bold text-sky-500 hover:text-sky-400 tracking-tighter transition-colors">FORGOT?</Link>
-                            </div>
-                            <div className="relative group">
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600">
-                                    <Lock className="w-4 h-4" />
-                                </div>
+                {/* Bottom Content */}
+                <div className="px-6 pb-12">
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <h1 className="text-[28px] font-bold text-white leading-tight mb-2">
+                            Welcome Back
+                        </h1>
+                        <p className="text-sm text-white/60 mb-6">
+                            {message === "check-email"
+                                ? "Please check your email to verify your account."
+                                : "Sign in to continue to your store"
+                            }
+                        </p>
+
+                        {/* Login Form */}
+                        <form onSubmit={handleLogin} className="space-y-3 mb-6">
+                            <Input
+                                type="email"
+                                placeholder="Email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                                className="h-14 px-6 rounded-2xl bg-white/10 border-white/20 text-white placeholder:text-white/40 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-white/40"
+                            />
+                            <div className="relative">
                                 <Input
-                                    id="password"
-                                    type="password"
-                                    placeholder="••••••••"
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
-                                    className="h-14 pl-12 rounded-xl bg-white/[0.03] border-white/[0.08] focus:border-sky-500/50 focus:ring-sky-500/10 transition-all text-base font-medium text-white placeholder:text-gray-800"
+                                    className="h-14 px-6 pr-12 rounded-2xl bg-white/10 border-white/20 text-white placeholder:text-white/40 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-white/40"
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/60 transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                </button>
                             </div>
+
+                            {/* Forgot Password */}
+                            <div className="flex justify-end">
+                                <Link href="#" className="text-sm font-medium text-white/60 hover:text-white/80">
+                                    Forgot Password?
+                                </Link>
+                            </div>
+
+                            {/* Sign In Button */}
+                            <Button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full h-14 bg-white hover:bg-gray-100 text-black rounded-full font-semibold text-base shadow-lg transition-all active:scale-[0.98] mt-4"
+                            >
+                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign In"}
+                            </Button>
+                        </form>
+
+                        {/* Divider */}
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="h-[1px] bg-white/20 flex-1"></div>
+                            <span className="text-sm text-white/40">or</span>
+                            <div className="h-[1px] bg-white/20 flex-1"></div>
                         </div>
 
+                        {/* Google Auth */}
                         <Button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full h-14 bg-white text-black hover:bg-gray-100 rounded-xl font-black text-lg shadow-2xl transition-all active:scale-[0.98] mt-6 border border-white/20"
+                            type="button"
+                            variant="outline"
+                            className="w-full h-14 rounded-2xl font-medium text-base bg-white/10 border-white/20 text-white hover:bg-white/20 flex items-center justify-center gap-3"
                         >
-                            {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : "Sign In"}
+                            <svg className="w-5 h-5" viewBox="0 0 24 24">
+                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                            </svg>
+                            Continue with Google
                         </Button>
-                    </form>
+
+                        {/* Sign Up Link */}
+                        <button
+                            onClick={() => router.push('/onboarding')}
+                            className="w-full h-14 text-white/70 hover:text-white font-medium text-sm transition-colors mt-2"
+                        >
+                            Don't have an account? <span className="font-semibold underline">Sign Up</span>
+                        </button>
+                    </div>
                 </div>
 
-                {/* Footer Section */}
-                <div className="mt-12 text-center">
-                    <p className="text-sm text-gray-500 font-bold">
-                        Don't have a store yet?{" "}
-                        <Link href="/signup" className="font-black text-sky-400 hover:text-sky-300 transition-colors">
-                            Launch now
-                        </Link>
-                    </p>
+                {/* Bottom Home Indicator */}
+                <div className="pb-8 flex justify-center">
+                    <div className="w-32 h-1 bg-white/40 rounded-full" />
                 </div>
             </div>
         </div>
@@ -143,7 +191,7 @@ function LoginForm() {
 
 export default function LoginPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-[#020617] flex items-center justify-center font-sans"><Loader2 className="w-10 h-10 text-sky-500 animate-spin" /></div>}>
+        <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center"><Loader2 className="w-10 h-10 text-white animate-spin" /></div>}>
             <LoginForm />
         </Suspense>
     );
