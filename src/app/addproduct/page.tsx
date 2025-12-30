@@ -213,7 +213,7 @@ export default function AddProductPage() {
 
     return (
         <div className="min-h-screen w-full bg-[#000000] flex items-center justify-center md:py-10 font-sans selection:bg-purple-500/30 selection:text-white">
-            <div className="w-full max-w-[440px] bg-zinc-900 md:rounded-2xl overflow-hidden shadow-2xl relative text-white h-full md:h-auto md:max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-500 border border-white/5">
+            <div className="w-full max-w-[440px] bg-zinc-900 md:rounded-2xl overflow-hidden shadow-2xl relative text-white h-full md:h-auto md:max-h-[90vh] flex flex-col border border-white/5">
 
                 {/* Scrollable Content Area */}
                 <div className="flex-1 overflow-y-auto pb-32 relative custom-scrollbar">

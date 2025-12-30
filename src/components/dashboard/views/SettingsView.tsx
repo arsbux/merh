@@ -24,7 +24,7 @@ export function SettingsView({
     handleLogout
 }: any) {
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 space-y-6 w-full max-w-7xl mx-auto">
+        <div className="space-y-6 w-full max-w-7xl mx-auto">
             <h2 className="text-2xl font-black tracking-tight text-white px-2">Settings</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -4,7 +4,7 @@ import { ShoppingBag, ExternalLink, User } from "lucide-react";
 
 export function ToolsView() {
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 space-y-6 w-full max-w-6xl mx-auto">
+        <div className="space-y-6 w-full max-w-6xl mx-auto">
             <div className="mb-8">
                 <h2 className="text-2xl font-black tracking-tight text-white mb-1">Tools</h2>
                 <p className="text-sm text-zinc-500 font-medium opacity-80">Powerful add-ons to supercharge your sales.</p>

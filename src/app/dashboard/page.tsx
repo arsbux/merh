@@ -682,7 +682,7 @@ export default function DashboardPage() {
                         <Plus className="w-6 h-6" strokeWidth={3} />
                     </button>
                     {isAddMenuOpen && (
-                        <div className="absolute bottom-20 right-0 w-64 bg-zinc-900 rounded-xl p-2 shadow-2xl border border-white/10 animate-in fade-in slide-in-from-bottom-8 overflow-hidden z-50 ring-1 ring-white/10">
+                        <div className="absolute bottom-20 right-0 w-64 bg-zinc-900 rounded-xl p-2 shadow-2xl border border-white/10 overflow-hidden z-50 ring-1 ring-white/10">
                             <div className="grid grid-cols-1 gap-0.5">
                                 <button onClick={() => handleOpenAddModal('TEXT')} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 text-left group transition-colors">
                                     <div className="w-10 h-10 rounded-full bg-purple-900/10 flex items-center justify-center group-hover:shadow-sm transition-all"><Type className="w-5 h-5 text-purple-400/80" /></div>

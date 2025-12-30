@@ -159,7 +159,7 @@ export default function SetupPage() {
                         {[1, 2, 3, 4].map((i) => (
                             <div
                                 key={i}
-                                className={`h-1.5 rounded-full transition-all duration-500 ${i === step
+                                className={`h-1.5 rounded-full ${i === step
                                     ? "w-10 bg-black"
                                     : i < step
                                         ? "w-4 bg-black/40"
@@ -172,7 +172,7 @@ export default function SetupPage() {
 
                 <div className="flex-1">
                     {step === 1 ? (
-                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div>
                             <h1 className="text-3xl font-bold mb-2">What are you going to sell?</h1>
                             <p className="text-black/50 mb-8">Choose your primary product type</p>
 
@@ -238,7 +238,7 @@ export default function SetupPage() {
                             </Button>
                         </div>
                     ) : step === 2 ? (
-                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div>
                             <h1 className="text-3xl font-bold mb-8">Country</h1>
 
                             {/* Search bar */}
@@ -284,7 +284,7 @@ export default function SetupPage() {
                             </Button>
                         </div>
                     ) : step === 3 ? (
-                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div>
                             <h1 className="text-3xl font-bold mb-2">What's your store name?</h1>
                             <p className="text-black/50 mb-10">This is how customers will see your brand</p>
 
@@ -308,7 +308,7 @@ export default function SetupPage() {
                             </Button>
                         </div>
                     ) : (
-                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div>
                             <h1 className="text-3xl font-bold mb-2">Connect WhatsApp</h1>
                             <p className="text-black/50 mb-10">We'll use this for your customers to send orders</p>
 

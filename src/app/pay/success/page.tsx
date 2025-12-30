@@ -74,7 +74,7 @@ function SuccessContent() {
     }
 
     return (
-        <div className="max-w-md w-full mx-auto p-6 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+        <div className="max-w-md w-full mx-auto p-6 space-y-10">
             {/* Minimalist Header */}
             <div className="flex flex-col items-center text-center space-y-4">
                 <div className="h-16 w-16 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">

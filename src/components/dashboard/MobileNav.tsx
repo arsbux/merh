@@ -21,17 +21,17 @@ export function MobileNav({ activeTab, setActiveTab }: { activeTab: string, setA
                     <button
                         key={item.id}
                         onClick={() => setActiveTab(item.id)}
-                        className={`relative flex items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${isActive
+                        className={`relative flex items-center justify-center ${isActive
                             ? 'bg-purple-600 text-white px-5 h-12 rounded-full shadow-lg shadow-purple-500/20'
                             : 'w-10 h-10 text-zinc-600 hover:text-white'}`}
                     >
                         <div className="flex items-center gap-2">
                             <Icon
-                                className={`transition-all duration-500 ${isActive ? 'w-4 h-4' : 'w-6 h-6'}`}
+                                className={`${isActive ? 'w-4 h-4' : 'w-6 h-6'}`}
                                 strokeWidth={isActive ? 2.5 : 1.5}
                             />
                             {isActive && (
-                                <span className="text-[10px] font-black uppercase tracking-widest whitespace-nowrap animate-in fade-in slide-in-from-left-2">
+                                <span className="text-[10px] font-black uppercase tracking-widest whitespace-nowrap">
                                     {item.label}
                                 </span>
                             )}

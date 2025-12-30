@@ -28,7 +28,7 @@ export function ProductsView({
     };
 
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 w-full">
+        <div className="w-full">
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h2 className="text-2xl font-black tracking-tight text-white">Products</h2>

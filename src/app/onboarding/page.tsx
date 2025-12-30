@@ -120,7 +120,7 @@ function OnboardingFlow() {
                         /* Onboarding Slides */
                         <div
                             key={currentSlide}
-                            className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500"
+                            className="mb-8"
                         >
                             <h1 className="text-[32px] font-bold text-white leading-tight mb-4">
                                 {slides[currentSlide].title}
@@ -141,7 +141,7 @@ function OnboardingFlow() {
                         </div>
                     ) : (
                         /* Signup Screen */
-                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="">
                             <h1 className="text-[28px] font-bold text-white leading-tight mb-2">
                                 Create Your Account
                             </h1>

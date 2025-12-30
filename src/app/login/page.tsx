@@ -92,7 +92,7 @@ function LoginForm() {
 
                 {/* Bottom Content */}
                 <div className="px-6 pb-20">
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="">
                         <h1 className="text-[28px] font-bold text-white leading-tight mb-2">
                             Welcome Back
                         </h1>

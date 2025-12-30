@@ -44,7 +44,7 @@ export function EarningsView({ payoutDetails, setPayoutDetails, savingPayout, on
     }
 
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 space-y-6 w-full max-w-7xl mx-auto">
+        <div className="space-y-6 w-full max-w-7xl mx-auto">
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-2xl font-black tracking-tight text-white mb-1">Earnings</h2>

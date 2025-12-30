@@ -82,8 +82,7 @@ export default async function StorefrontPage({
                             <Link
                                 key={product.id}
                                 href={`/${slug}/${product.slug || product.slugId || product.id}`}
-                                className="flex flex-col gap-3 group animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both"
-                                style={{ animationDelay: `${Math.random() * 200}ms` }}
+                                className="flex flex-col gap-3 group"
                             >
                                 <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-zinc-900 shadow-sm border border-white/5 group">
                                     {product.imageUrls?.[0] ? (

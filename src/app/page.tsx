@@ -101,31 +101,22 @@ export default function LandingPage() {
         <section className="relative flex flex-col items-center text-center px-6 max-w-4xl mx-auto z-20">
 
           {/* Main Headline */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+          <h1
             className="text-4xl md:text-6xl font-semibold tracking-tight text-white leading-[1.2] mb-6"
           >
             <span className="text-[#ccfd14]">Sell Anything. From Anywhere.</span><br />
             <span className="text-white">With Just Your Phone.</span>
-          </motion.h1>
+          </h1>
 
           {/* Subtext */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+          <p
             className="text-lg text-gray-400 max-w-xl mx-auto leading-relaxed mb-10 font-normal"
           >
             Build a global storefront in 60 seconds. Accept worldwide payments and withdraw to any option based on your location.
-          </motion.p>
+          </p>
 
           {/* Email Input / CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+          <div
             className="w-full max-w-md mx-auto relative mb-12"
           >
             <div className="relative flex items-center">
@@ -146,28 +137,23 @@ export default function LandingPage() {
               </Button>
             </div>
             {message && (
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
+              <p
                 className={`text-sm mt-4 ${status === 'error' ? 'text-red-400' : 'text-[#ccfd14]'}`}
               >
                 {message}
-              </motion.p>
+              </p>
             )}
-          </motion.div>
+          </div>
 
 
 
         </section>
 
-        <motion.footer
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
+        <footer
           className="fixed bottom-6 text-gray-600 text-sm font-medium hover:text-gray-400 transition-colors z-20"
         >
           <a href="mailto:keith@tryventra.com">keith@tryventra.com</a>
-        </motion.footer>
+        </footer>
 
       </main>
     </div>
