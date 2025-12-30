@@ -61,8 +61,8 @@ export default function SetupPage() {
 
     const handleNext = () => {
         if (step === 1 && sellingType) {
-            // If not digital, skip country (step 2) and go to store name (step 3)
-            if (sellingType !== "digital") {
+            // If digital, skip country (step 2) and go to store name (step 3)
+            if (sellingType === "digital") {
                 setStep(3);
             } else {
                 setStep(2);
@@ -70,10 +70,8 @@ export default function SetupPage() {
         } else if (step === 2 && country) {
             setStep(3);
         } else if (step === 3 && storeName.length >= 2) {
-            // If not digital, we finished name, so we are done?
-            // User says: "If it's not digital, then they don't have to fill in the country, and whatsapp"
-            // So we skip whatsapp (step 4)
-            if (sellingType !== "digital") {
+            // If digital, we finished name, so we are done
+            if (sellingType === "digital") {
                 handleComplete();
             } else {
                 setStep(4);
@@ -82,7 +80,7 @@ export default function SetupPage() {
     };
 
     const handleBack = () => {
-        if (step === 3 && sellingType !== "digital") {
+        if (step === 3 && sellingType === "digital") {
             setStep(1);
         } else if (step > 1) {
             setStep(step - 1);
@@ -90,11 +88,8 @@ export default function SetupPage() {
     };
 
     const handleComplete = async () => {
-        // WhatsApp only required for Digital if user wants to fill it, 
-        // but user said "if it's not digital, they don't have to fill country and whatsapp"
-        // Implicitly, for digital they MUST fill it? 
-        // Or at least it's shown. I'll make it required for digital since the user implied it's the differentiating factor.
-        if (sellingType === "digital" && !whatsapp) {
+        // WhatsApp only required for Non-Digital products per user request
+        if (sellingType !== "digital" && !whatsapp) {
             toast.error("Please enter your WhatsApp number");
             return;
         }
@@ -110,14 +105,14 @@ export default function SetupPage() {
                 .replace(/^-+|-+$/g, ''); // remove leading/trailing dashes
 
             // Combine dial code with number
-            const fullWhatsapp = (sellingType === "digital" && country) ? `${country.dialCode}${whatsapp.replace(/[^0-9]/g, '')}` : "";
+            const fullWhatsapp = (sellingType !== "digital" && country) ? `${country.dialCode}${whatsapp.replace(/[^0-9]/g, '')}` : "";
 
             const res = await createStore(
                 user.id,
                 user.email,
                 generatedSlug,
                 storeName,
-                (sellingType === "digital" ? country?.name : ""),
+                (sellingType !== "digital" ? country?.name : ""),
                 sellingType || undefined,
                 fullWhatsapp
             );
