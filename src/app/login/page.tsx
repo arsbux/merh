@@ -142,7 +142,7 @@ function LoginForm() {
                             <Button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full h-14 bg-white hover:bg-gray-100 text-black rounded-full font-semibold text-base shadow-lg transition-all active:scale-[0.98] mt-4"
+                                className="w-full h-14 bg-white hover:bg-gray-100 text-black rounded-2xl font-semibold text-base shadow-lg transition-all active:scale-[0.98] mt-4"
                             >
                                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign In"}
                             </Button>

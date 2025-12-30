@@ -133,7 +133,7 @@ function OnboardingFlow() {
 
                             <Button
                                 onClick={handleNext}
-                                className="w-full h-14 bg-white hover:bg-gray-100 text-black rounded-full font-semibold text-base shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 mt-8"
+                                className="w-full h-14 bg-white hover:bg-gray-100 text-black rounded-2xl font-semibold text-base shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 mt-8"
                             >
                                 {currentSlide === 0 ? "Next" : "Get Started"}
                                 {currentSlide === 1 && <ChevronRight className="w-5 h-5" />}
@@ -171,7 +171,7 @@ function OnboardingFlow() {
                             <Button
                                 onClick={handleSignup}
                                 disabled={loading}
-                                className="w-full h-14 bg-white hover:bg-gray-100 text-black rounded-full font-semibold text-base shadow-lg transition-all active:scale-[0.98]"
+                                className="w-full h-14 bg-white hover:bg-gray-100 text-black rounded-2xl font-semibold text-base shadow-lg transition-all active:scale-[0.98]"
                             >
                                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign Up"}
                             </Button>

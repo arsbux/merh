@@ -12,7 +12,7 @@ export function MobileNav({ activeTab, setActiveTab }: { activeTab: string, setA
     ];
 
     return (
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-white/90 backdrop-blur-2xl border-t border-black/5 z-50 flex items-center justify-between px-6 pb-safe shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-[#020617]/90 backdrop-blur-2xl border-t border-white/10 z-50 flex items-center justify-between px-6 pb-safe shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
             {navItems.map((item) => {
                 const isActive = activeTab === item.id;
                 const Icon = item.icon;
@@ -22,8 +22,8 @@ export function MobileNav({ activeTab, setActiveTab }: { activeTab: string, setA
                         key={item.id}
                         onClick={() => setActiveTab(item.id)}
                         className={`relative flex items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${isActive
-                            ? 'bg-black text-white px-5 h-12 rounded-full shadow-lg shadow-black/20'
-                            : 'w-10 h-10 text-black/30 hover:text-black/60'}`}
+                            ? 'bg-purple-600 text-white px-5 h-12 rounded-full shadow-lg shadow-purple-500/20'
+                            : 'w-10 h-10 text-zinc-600 hover:text-white'}`}
                     >
                         <div className="flex items-center gap-2">
                             <Icon

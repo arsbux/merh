@@ -87,6 +87,7 @@ export async function updateStoreProfile(userId: string, data: {
     socialLinks?: any;
     payoutDetails?: any;
     whatsapp?: string;
+    checkoutMode?: string;
 }) {
     try {
         const supabase = await createClient();
@@ -145,6 +146,7 @@ export async function updateStoreProfile(userId: string, data: {
                 socialLinks: data.socialLinks,
                 payoutDetails: data.payoutDetails,
                 whatsapp: data.whatsapp,
+                checkoutMode: data.checkoutMode, // Add this
                 updatedAt: new Date().toISOString()
             })
             .eq('userId', userId);
@@ -544,5 +546,22 @@ export async function getProductBySlugOrId(storeSlug: string, productIdentifier:
     } catch (error) {
         console.error("Error fetching product:", error);
         return null;
+    }
+}
+
+export async function getTransactions(storeId: string) {
+    try {
+        const supabase = await createClient();
+        const { data, error } = await supabase
+            .from('transactions')
+            .select('*')
+            .eq('user_id', storeId)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return { success: true, transactions: data };
+    } catch (error: any) {
+        console.error("Error fetching transactions:", error);
+        return { success: false, error: error.message };
     }
 }

@@ -29,7 +29,7 @@ export default function SetupPage() {
     const [user, setUser] = useState<any>(null);
 
     // Form state
-    const [storeType, setStoreType] = useState<"individual" | "business" | null>(null);
+    const [sellingType, setSellingType] = useState<"digital" | "service" | "physical" | null>(null);
     const [country, setCountry] = useState<typeof COUNTRIES[0] | null>(null);
     const [storeName, setStoreName] = useState("");
     const [whatsapp, setWhatsapp] = useState("");
@@ -60,23 +60,41 @@ export default function SetupPage() {
     }, [router]);
 
     const handleNext = () => {
-        if (step === 1 && storeType) {
-            setStep(2);
+        if (step === 1 && sellingType) {
+            // If not digital, skip country (step 2) and go to store name (step 3)
+            if (sellingType !== "digital") {
+                setStep(3);
+            } else {
+                setStep(2);
+            }
         } else if (step === 2 && country) {
             setStep(3);
         } else if (step === 3 && storeName.length >= 2) {
-            setStep(4);
+            // If not digital, we finished name, so we are done?
+            // User says: "If it's not digital, then they don't have to fill in the country, and whatsapp"
+            // So we skip whatsapp (step 4)
+            if (sellingType !== "digital") {
+                handleComplete();
+            } else {
+                setStep(4);
+            }
         }
     };
 
     const handleBack = () => {
-        if (step > 1) {
+        if (step === 3 && sellingType !== "digital") {
+            setStep(1);
+        } else if (step > 1) {
             setStep(step - 1);
         }
     };
 
     const handleComplete = async () => {
-        if (!whatsapp) {
+        // WhatsApp only required for Digital if user wants to fill it, 
+        // but user said "if it's not digital, they don't have to fill country and whatsapp"
+        // Implicitly, for digital they MUST fill it? 
+        // Or at least it's shown. I'll make it required for digital since the user implied it's the differentiating factor.
+        if (sellingType === "digital" && !whatsapp) {
             toast.error("Please enter your WhatsApp number");
             return;
         }
@@ -92,15 +110,15 @@ export default function SetupPage() {
                 .replace(/^-+|-+$/g, ''); // remove leading/trailing dashes
 
             // Combine dial code with number
-            const fullWhatsapp = country ? `${country.dialCode}${whatsapp.replace(/[^0-9]/g, '')}` : whatsapp;
+            const fullWhatsapp = (sellingType === "digital" && country) ? `${country.dialCode}${whatsapp.replace(/[^0-9]/g, '')}` : "";
 
             const res = await createStore(
                 user.id,
                 user.email,
                 generatedSlug,
                 storeName,
-                country?.name,
-                storeType || undefined,
+                (sellingType === "digital" ? country?.name : ""),
+                sellingType || undefined,
                 fullWhatsapp
             );
 
@@ -160,49 +178,66 @@ export default function SetupPage() {
                 <div className="flex-1">
                     {step === 1 ? (
                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <h1 className="text-3xl font-bold mb-2">Choose account type</h1>
-                            <p className="text-black/50 mb-8">How will you be using Ventra?</p>
+                            <h1 className="text-3xl font-bold mb-2">What are you going to sell?</h1>
+                            <p className="text-black/50 mb-8">Choose your primary product type</p>
 
                             <div className="space-y-4">
                                 <button
-                                    onClick={() => setStoreType("individual")}
-                                    className={`w-full p-6 rounded-[2.5rem] border transition-all flex items-center gap-4 text-left shadow-sm ${storeType === "individual"
+                                    onClick={() => setSellingType("digital")}
+                                    className={`w-full p-5 rounded-2xl border transition-all flex items-center gap-4 text-left shadow-sm ${sellingType === "digital"
                                         ? "bg-black border-black text-white"
                                         : "bg-white border-black/5 text-black hover:bg-black/5"
                                         }`}
                                 >
-                                    <div className={`p-3 rounded-2xl ${storeType === "individual" ? "bg-white/20" : "bg-black/5"}`}>
-                                        <User className="w-6 h-6" />
+                                    <div className={`p-2.5 rounded-xl ${sellingType === "digital" ? "bg-white/20" : "bg-black/5"}`}>
+                                        <div className="w-5 h-5 flex items-center justify-center font-bold">DIG</div>
                                     </div>
                                     <div className="flex-1">
-                                        <h3 className="font-semibold text-lg">Individual Seller</h3>
-                                        <p className={`text-sm ${storeType === "individual" ? "text-white/60" : "text-black/40"}`}>Selling on your own</p>
+                                        <h3 className="font-bold text-base">Digital Assets</h3>
+                                        <p className={`text-xs ${sellingType === "digital" ? "text-white/60" : "text-black/40"}`}>Files, courses, or presets</p>
                                     </div>
-                                    {storeType === "individual" && <Check className="w-6 h-6 text-white" />}
+                                    {sellingType === "digital" && <Check className="w-5 h-5 text-white" />}
                                 </button>
 
                                 <button
-                                    onClick={() => setStoreType("business")}
-                                    className={`w-full p-6 rounded-[2.5rem] border transition-all flex items-center gap-4 text-left shadow-sm ${storeType === "business"
+                                    onClick={() => setSellingType("service")}
+                                    className={`w-full p-5 rounded-2xl border transition-all flex items-center gap-4 text-left shadow-sm ${sellingType === "service"
                                         ? "bg-black border-black text-white"
                                         : "bg-white border-black/5 text-black hover:bg-black/5"
                                         }`}
                                 >
-                                    <div className={`p-3 rounded-2xl ${storeType === "business" ? "bg-white/20" : "bg-black/5"}`}>
-                                        <Building2 className="w-6 h-6" />
+                                    <div className={`p-2.5 rounded-xl ${sellingType === "service" ? "bg-white/20" : "bg-black/5"}`}>
+                                        <div className="w-5 h-5 flex items-center justify-center font-bold">SRV</div>
                                     </div>
                                     <div className="flex-1">
-                                        <h3 className="font-semibold text-lg">Business Entity</h3>
-                                        <p className={`text-sm ${storeType === "business" ? "text-white/60" : "text-black/40"}`}>Registered company</p>
+                                        <h3 className="font-bold text-base">Professional Services</h3>
+                                        <p className={`text-sm ${sellingType === "service" ? "text-white/60" : "text-black/40"}`}>Consulting or booking</p>
                                     </div>
-                                    {storeType === "business" && <Check className="w-6 h-6 text-white" />}
+                                    {sellingType === "service" && <Check className="w-5 h-5 text-white" />}
+                                </button>
+
+                                <button
+                                    onClick={() => setSellingType("physical")}
+                                    className={`w-full p-5 rounded-2xl border transition-all flex items-center gap-4 text-left shadow-sm ${sellingType === "physical"
+                                        ? "bg-black border-black text-white"
+                                        : "bg-white border-black/5 text-black hover:bg-black/5"
+                                        }`}
+                                >
+                                    <div className={`p-2.5 rounded-xl ${sellingType === "physical" ? "bg-white/20" : "bg-black/5"}`}>
+                                        <div className="w-5 h-5 flex items-center justify-center font-bold">PHY</div>
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="font-bold text-base">Physical Products</h3>
+                                        <p className={`text-sm ${sellingType === "physical" ? "text-white/60" : "text-black/40"}`}>Physical goods & delivery</p>
+                                    </div>
+                                    {sellingType === "physical" && <Check className="w-5 h-5 text-white" />}
                                 </button>
                             </div>
 
                             <Button
                                 onClick={handleNext}
-                                disabled={!storeType}
-                                className="w-full h-16 bg-black hover:bg-black/90 text-white rounded-full font-bold text-lg shadow-xl mt-10 transition-all active:scale-[0.98]"
+                                disabled={!sellingType}
+                                className="w-full h-14 bg-black hover:bg-black/90 text-white rounded-2xl font-bold text-base shadow-xl mt-10 transition-all active:scale-[0.98]"
                             >
                                 Continue
                             </Button>
@@ -221,23 +256,23 @@ export default function SetupPage() {
                                     placeholder="Search country..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="h-14 pl-14 pr-6 rounded-full bg-black/5 border-none text-black placeholder:text-black/30 focus-visible:ring-1 focus-visible:ring-black/10"
+                                    className="h-12 pl-14 pr-6 rounded-2xl bg-black/5 border-none text-black placeholder:text-black/30 focus-visible:ring-1 focus-visible:ring-black/10"
                                 />
                             </div>
 
-                            <div className="space-y-3 max-h-[50vh] overflow-y-auto pb-4 pr-1 custom-scrollbar">
+                            <div className="space-y-2 max-h-[50vh] overflow-y-auto pb-4 pr-1 custom-scrollbar">
                                 {filteredCountries.map((c) => (
                                     <button
                                         key={c.code}
                                         onClick={() => setCountry(c)}
-                                        className={`w-full p-4 rounded-3xl border transition-all flex items-center gap-4 text-left shadow-sm ${country?.code === c.code
+                                        className={`w-full p-4 rounded-xl border transition-all flex items-center gap-4 text-left shadow-sm ${country?.code === c.code
                                             ? "bg-black border-black text-white"
                                             : "bg-white border-black/5 text-black hover:bg-black/5"
                                             }`}
                                     >
-                                        <span className="text-2xl">{c.flag}</span>
-                                        <span className="flex-1 font-semibold text-base">{c.name}</span>
-                                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${country?.code === c.code ? "border-white bg-white" : "border-black/10"
+                                        <span className="text-xl">{c.flag}</span>
+                                        <span className="flex-1 font-bold text-sm">{c.name}</span>
+                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${country?.code === c.code ? "border-white bg-white" : "border-black/10"
                                             }`}>
                                             {country?.code === c.code && <div className="w-2.5 h-2.5 rounded-full bg-black" />}
                                         </div>
@@ -248,7 +283,7 @@ export default function SetupPage() {
                             <Button
                                 onClick={handleNext}
                                 disabled={!country}
-                                className="w-full h-16 bg-black hover:bg-black/90 text-white rounded-full font-bold text-lg shadow-xl mt-8 transition-all active:scale-[0.98]"
+                                className="w-full h-14 bg-black hover:bg-black/90 text-white rounded-2xl font-bold text-base shadow-xl mt-8 transition-all active:scale-[0.98]"
                             >
                                 Continue
                             </Button>
@@ -264,7 +299,7 @@ export default function SetupPage() {
                                     placeholder="e.g. Keith's Shop"
                                     value={storeName}
                                     onChange={(e) => setStoreName(e.target.value)}
-                                    className="h-16 px-8 rounded-[2rem] bg-black/5 border-none text-black text-xl font-medium placeholder:text-black/20 focus-visible:ring-2 focus-visible:ring-black/10"
+                                    className="h-14 px-6 rounded-2xl bg-black/5 border-none text-black text-lg font-bold placeholder:text-black/20 focus-visible:ring-2 focus-visible:ring-black/10"
                                     autoFocus
                                 />
                             </div>
@@ -272,7 +307,7 @@ export default function SetupPage() {
                             <Button
                                 onClick={handleNext}
                                 disabled={storeName.length < 2}
-                                className="w-full h-16 bg-black hover:bg-black/90 text-white rounded-full font-bold text-lg shadow-xl transition-all active:scale-[0.98]"
+                                className="w-full h-14 bg-black hover:bg-black/90 text-white rounded-2xl font-bold text-base shadow-xl transition-all active:scale-[0.98]"
                             >
                                 Continue
                             </Button>
@@ -283,7 +318,7 @@ export default function SetupPage() {
                             <p className="text-black/50 mb-10">We'll use this for your customers to send orders</p>
 
                             <div className="relative mb-8 flex gap-3">
-                                <div className="h-16 px-6 flex items-center justify-center rounded-[2rem] bg-black/5 text-black font-bold border-none">
+                                <div className="h-14 px-5 flex items-center justify-center rounded-2xl bg-black/5 text-black font-bold border-none text-base">
                                     +{country?.dialCode}
                                 </div>
                                 <Input
@@ -291,7 +326,7 @@ export default function SetupPage() {
                                     placeholder="712345678"
                                     value={whatsapp}
                                     onChange={(e) => setWhatsapp(e.target.value)}
-                                    className="h-16 px-8 flex-1 rounded-[2rem] bg-black/5 border-none text-black text-xl font-medium placeholder:text-black/20 focus-visible:ring-2 focus-visible:ring-black/10"
+                                    className="h-14 px-6 flex-1 rounded-2xl bg-black/5 border-none text-black text-lg font-bold placeholder:text-black/20 focus-visible:ring-2 focus-visible:ring-black/10"
                                     autoFocus
                                 />
                             </div>
@@ -299,9 +334,9 @@ export default function SetupPage() {
                             <Button
                                 onClick={handleComplete}
                                 disabled={loading || whatsapp.length < 5}
-                                className="w-full h-16 bg-black hover:bg-black/90 text-white rounded-full font-bold text-lg shadow-xl transition-all active:scale-[0.98]"
+                                className="w-full h-14 bg-black hover:bg-black/90 text-white rounded-2xl font-bold text-base shadow-xl transition-all active:scale-[0.98]"
                             >
-                                {loading ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : "Bring me to my dashboard"}
+                                {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "Bring me to my dashboard"}
                             </Button>
                         </div>
                     )}
